@@ -13,7 +13,7 @@
 <style>
   :root {
     --bg: #0E0322; --card: rgba(34, 12, 78, 0.86); --line: rgba(200, 160, 255, 0.36); --text: #F6F0FF;
-    --muted: #C9B8EA; --faint: #9584C2; --primary: #B22BFF; --from: #C400FF; --to: #5B4BFF; --link: #E77BFF;
+    --muted: #C9B8EA; --faint: #9584C2; --from: #C400FF; --to: #5B4BFF; --link: #E77BFF;
     --green: #2BEA4E; --orange: #F59E0B; --red: #EF4444; --gold: #FFD65A;
   }
   * { box-sizing: border-box; }
@@ -26,11 +26,15 @@
     padding: env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom));
   }
   h1 { font-size: 24px; margin: 18px 0 4px; }
+  h2 { font-size: 20px; margin: 18px 0 8px; }
   .muted { color: var(--muted); } .small { font-size: 13px; }
+  .label { color: var(--muted); font-size: 13px; font-weight: 600; margin: 12px 0 6px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin: 12px 0; }
-  input { width: 100%; font: inherit; color: var(--text); background: rgba(255,255,255,0.06);
+  input, select { width: 100%; font: inherit; color: var(--text); background: rgba(255,255,255,0.06);
           border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; outline: none; }
-  input:focus { border-color: var(--from); }
+  select { appearance: none; -webkit-appearance: none; }
+  select option { background: #22104A; }
+  input:focus, select:focus { border-color: var(--from); }
   button { font: inherit; font-weight: 600; color: #fff; border: 0; border-radius: 14px; padding: 11px 16px; cursor: pointer;
            background: linear-gradient(90deg, var(--from), var(--to)); }
   button.ghost { background: rgba(60, 16, 120, 0.45); border: 1px solid var(--line); }
@@ -40,8 +44,15 @@
   .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
   .kpi b { display: block; font-size: 26px; }
   .seg { display: flex; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-  .seg button { flex: 1; border-radius: 0; background: transparent; padding: 9px; }
+  .seg button { flex: 1; border-radius: 0; background: transparent; padding: 9px 4px; font-size: 14px; }
   .seg button.on { background: linear-gradient(90deg, var(--from), var(--to)); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { background: rgba(60, 16, 120, 0.45); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px;
+          font-size: 14px; }
+  .chip.on { background: linear-gradient(90deg, var(--from), var(--to)); border-color: transparent; }
+  .chip.on::before { content: "✓ "; }
+  .filters { display: none; }
+  .filters.open { display: block; }
   .tender { display: flex; gap: 12px; }
   .ring { flex: 0 0 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-weight: 800;
           border: 4px solid var(--green); color: var(--green); }
@@ -90,10 +101,37 @@
       <div class="kpi"><b id="kSoon">–</b><span class="muted small">Frist in 7 Tagen</span></div>
       <div class="kpi"><b id="kSaved">–</b><span class="muted small">gespeichert</span></div>
     </div>
-    <h1 style="font-size:20px">Suchen</h1>
+
+    <h2>Suchen</h2>
     <input id="q" type="search" placeholder="Titel, Auftraggeber, Ort …">
-    <div style="height:10px"></div>
-    <div class="seg"><button id="vKern" class="on">LPH 5–8</button><button id="vAll">Alle Treffer</button></div>
+    <div class="label">Ansicht</div>
+    <div class="seg" id="segView"></div>
+    <div class="label">Zeitraum</div>
+    <div class="seg" id="segPeriod"></div>
+    <div class="row" style="margin-top:12px">
+      <select id="sort" style="flex:1">
+        <option value="score">Sortieren: Score ↓</option>
+        <option value="deadline">Sortieren: Frist ↑</option>
+        <option value="new">Sortieren: Neueste</option>
+      </select>
+      <button id="filterBtn" class="ghost">Filter</button>
+    </div>
+
+    <div id="filters" class="filters card">
+      <div class="label" style="margin-top:0">Fachgebiet <span class="small">(mehrere möglich)</span></div>
+      <div class="chips" id="chipsFach"></div>
+      <div class="label">Leistungsphase</div>
+      <div class="chips" id="chipsPhase"></div>
+      <div class="label">Frist noch (Wochen)</div>
+      <div class="seg" id="segDeadline"></div>
+      <div class="label">Land</div>
+      <div class="seg" id="segCountry"></div>
+      <div class="row" style="margin-top:14px; justify-content:space-between">
+        <button id="resetBtn" class="ghost">↺ Zurücksetzen</button>
+        <button id="closeFilters">Fertig</button>
+      </div>
+    </div>
+
     <p id="count" class="muted small"></p>
     <div id="list"></div>
   </section>
@@ -108,8 +146,25 @@ const cfg = window.TB_CONFIG;
 const db = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
 const $ = (id) => document.getElementById(id);
 let tenders = [];
-let view = "kern";
 const pending = new Set();  // saved on this phone, not yet taken over by the PC
+
+// The same choices and defaults as Suchen on the PC.
+const VIEWS = [["kern", "LPH 5–8"], ["mit_planung", "+ Planung 1–4"], ["alle", "Alle Treffer"]];
+const PERIODS = [[14, "2 Wochen"], [28, "4 Wochen"], [42, "6 Wochen"]];
+const FACH = [["tiefbau", "Tiefbau"], ["hochbau", "Hochbau"], ["elektro", "Elektro / TGA"], ["energie", "Energie & Netze"],
+              ["zaehler", "Zähler & Messstellen"], ["pipeline", "Pipeline"], ["engineering", "Engineering"],
+              ["architektur", "Architektur"]];
+const PHASES = [[7, "LPH 7"], [8, "LPH 8"], [9, "LPH 9"]];
+const DEADLINES = [[0, "alle"], [1, "≥ 1"], [2, "≥ 2"], [3, "≥ 3"], [4, "≥ 4"]];
+const COUNTRIES = [["", "DE + AT"], ["DEU", "DE"], ["AUT", "AT"]];
+const PHASE_FREE = ["zaehler"];  // meter swaps have no LPH: shown in the LPH views too
+const DEFAULTS = { view: "kern", period: 28, fach: [], phases: [], deadline: 0, country: "", sort: "score" };
+let f = loadFilters();
+
+function loadFilters() {
+  try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem("tb_filters") || "{}") }; } catch (e) { return { ...DEFAULTS }; }
+}
+function saveFilters() { try { localStorage.setItem("tb_filters", JSON.stringify(f)); } catch (e) { /* private mode */ } }
 
 /** An element with plain text only (texts from TED are never treated as HTML). */
 function el(tag, cls, text) {
@@ -119,14 +174,13 @@ function el(tag, cls, text) {
   return e;
 }
 
-function daysLeft(deadline) {
-  if (!deadline) return null;
-  const berlin = (d) => new Date(d.toLocaleString("en-US", { timeZone: "Europe/Berlin" }));
-  const due = berlin(new Date(deadline)), now = berlin(new Date());
-  const start = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  return Math.round((start(due) - start(now)) / 86400000);
+function berlinDay(d) {
+  const p = new Date(d.toLocaleString("en-US", { timeZone: "Europe/Berlin" }));
+  return new Date(p.getFullYear(), p.getMonth(), p.getDate());
 }
-
+function daysLeft(deadline) {
+  return deadline ? Math.round((berlinDay(new Date(deadline)) - berlinDay(new Date())) / 86400000) : null;
+}
 function countdown(deadline) {
   const d = daysLeft(deadline);
   if (d === null) return null;
@@ -135,38 +189,91 @@ function countdown(deadline) {
   if (d === 1) return { text: "morgen", warn: true };
   return { text: `noch ${d} Tage`, warn: d <= 3 };
 }
-
 function fmtDate(value) {
   if (!value) return "nicht angegeben";
   return new Date(value).toLocaleString("de-DE", { timeZone: "Europe/Berlin", weekday: "short", day: "2-digit",
     month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
-
 function ringColor(score) { return score >= 70 ? "var(--green)" : score >= 40 ? "var(--orange)" : "var(--red)"; }
-
 function isSaved(t) { return t.status !== "new" || pending.has(t.publication_number); }
 
-function inView(t) {
-  return view === "all" || t.phase_group === "kern" || t.bereich_key === "zaehler";
-}
-
-function matches(t, words) {
+/** The PC's rules: view, period (German date), Fachgebiet, phases, deadline, country, search text. */
+function passes(t, words) {
+  const fach = t.bereiche || [];
+  const phaseFree = fach.some((b) => PHASE_FREE.includes(b));
+  const groups = f.view === "kern" ? ["kern"] : f.view === "mit_planung" ? ["kern", "mit_planung"] : null;
+  if (groups && !words.length && !groups.includes(t.phase_group) && !phaseFree) return false;
+  if (t.published) {
+    const since = berlinDay(new Date());
+    since.setDate(since.getDate() - f.period);
+    if (new Date(t.published + "T12:00:00") < since) return false;
+  }
+  if (f.fach.length && !f.fach.some((k) => fach.includes(k))) return false;
+  if (f.phases.length && !f.phases.some((p) => (t.phases || []).includes(p))) return false;
+  if (f.deadline) {
+    if (!t.deadline || new Date(t.deadline) < new Date(Date.now() + f.deadline * 7 * 86400000)) return false;
+  }
+  if (f.country && t.country !== f.country) return false;
   const hay = `${t.title || ""} ${t.buyer || ""} ${t.description || ""}`.toLowerCase();
   return words.every((w) => hay.includes(w));
 }
 
+function sorted(list) {
+  const by = {
+    score: (a, b) => (b.score || 0) - (a.score || 0) || String(a.deadline).localeCompare(String(b.deadline)),
+    deadline: (a, b) => String(a.deadline || "9").localeCompare(String(b.deadline || "9")),
+    new: (a, b) => String(b.published || "").localeCompare(String(a.published || "")),
+  }[f.sort];
+  return [...list].sort(by);
+}
+
 function render() {
   const words = $("q").value.toLowerCase().split(/\s+/).filter(Boolean);
-  const shown = tenders.filter((t) => inView(t) && matches(t, words));
+  // as on the PC, tenders already saved or in work are no search results (saved here just now: still shown)
+  const shown = sorted(tenders.filter((t) => (t.status === "new") && passes(t, words)));
   $("count").textContent = `${shown.length} Ausschreibungen`;
   const list = $("list");
   list.replaceChildren();
   for (const t of shown.slice(0, 200)) list.appendChild(card(t));
   const weekAgo = Date.now() - 7 * 86400000;
   $("kNew").textContent = tenders.filter((t) => t.published && new Date(t.published) >= weekAgo).length;
-  $("kGold").textContent = tenders.filter((t) => t.gold).length;
+  $("kGold").textContent = tenders.filter((t) => t.gold && t.status === "new").length;
   $("kSoon").textContent = tenders.filter((t) => { const d = daysLeft(t.deadline); return d !== null && d >= 0 && d <= 7; }).length;
   $("kSaved").textContent = tenders.filter(isSaved).length;
+  renderControls();
+}
+
+function seg(id, options, current, set) {
+  const box = $(id);
+  box.replaceChildren();
+  for (const [value, label] of options) {
+    const b = el("button", value === current ? "on" : "", label);
+    b.onclick = () => { set(value); saveFilters(); render(); };
+    box.appendChild(b);
+  }
+}
+function chips(id, options, chosen, key) {
+  const box = $(id);
+  box.replaceChildren();
+  for (const [value, label] of options) {
+    const b = el("button", "chip" + (chosen.includes(value) ? " on" : ""), label);
+    b.onclick = () => {
+      f[key] = chosen.includes(value) ? chosen.filter((v) => v !== value) : [...chosen, value];
+      saveFilters(); render();
+    };
+    box.appendChild(b);
+  }
+}
+function renderControls() {
+  seg("segView", VIEWS, f.view, (v) => { f.view = v; });
+  seg("segPeriod", PERIODS, f.period, (v) => { f.period = v; });
+  seg("segDeadline", DEADLINES, f.deadline, (v) => { f.deadline = v; });
+  seg("segCountry", COUNTRIES, f.country, (v) => { f.country = v; });
+  chips("chipsFach", FACH, f.fach, "fach");
+  chips("chipsPhase", PHASES, f.phases, "phases");
+  $("sort").value = f.sort;
+  const n = f.fach.length + f.phases.length + (f.deadline ? 1 : 0) + (f.country ? 1 : 0);
+  $("filterBtn").textContent = n ? `Filter (${n})` : "Filter";
 }
 
 function badges(t) {
@@ -222,11 +329,14 @@ function openDetail(t) {
   d.replaceChildren();
   const close = el("button", "ghost", "Schließen");
   close.onclick = () => $("sheet").classList.remove("open");
-  d.append(badges(t), el("h1", "", t.title || "(ohne Titel)"), el("div", "muted", `${t.buyer || ""} · ${t.country === "AUT" ? "Österreich" : "Deutschland"}`));
+  d.append(badges(t), el("h1", "", t.title || "(ohne Titel)"),
+           el("div", "muted", `${t.buyer || ""} · ${t.country === "AUT" ? "Österreich" : "Deutschland"}`));
   const facts = el("div", "small");
   facts.style.margin = "10px 0";
   for (const line of [`Frist: ${fmtDate(t.deadline)}`, `Laufzeit: ${t.duration_text || "nicht angegeben"}`,
-                      `Wert: ${t.value_text || "nicht angegeben"}`, `Score: ${t.score ?? 0}`]) facts.appendChild(el("div", "", line));
+                      `Wert: ${t.value_text || "nicht angegeben"}`, `Score: ${t.score ?? 0}`]) {
+    facts.appendChild(el("div", "", line));
+  }
   d.appendChild(facts);
   if (t.description) d.appendChild(el("p", "small", t.description));
   if ((t.reasons || []).length) {
@@ -271,8 +381,10 @@ $("loginBtn").onclick = async () => {
 };
 $("logoutBtn").onclick = async () => { await db.auth.signOut(); show(); };
 $("q").oninput = render;
-$("vKern").onclick = () => { view = "kern"; $("vKern").classList.add("on"); $("vAll").classList.remove("on"); render(); };
-$("vAll").onclick = () => { view = "all"; $("vAll").classList.add("on"); $("vKern").classList.remove("on"); render(); };
+$("sort").onchange = () => { f.sort = $("sort").value; saveFilters(); render(); };
+$("filterBtn").onclick = () => $("filters").classList.toggle("open");
+$("closeFilters").onclick = () => $("filters").classList.remove("open");
+$("resetBtn").onclick = () => { f = { ...DEFAULTS }; saveFilters(); render(); };
 $("sheet").onclick = (e) => { if (e.target.id === "sheet") $("sheet").classList.remove("open"); };
 show();
 </script>
