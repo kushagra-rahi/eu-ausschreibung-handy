@@ -100,6 +100,7 @@
 </style>
 </head>
 <body>
+  <p id="booting" class="muted" style="margin-top:40px; text-align:center">Wird geladen …</p>
   <section id="login" class="hidden">
     <h1>EU Ausschreibung</h1>
     <p class="muted">Bitte anmelden.</p>
@@ -508,7 +509,18 @@ async function load() {
 }
 
 async function show() {
-  const { data } = await db.auth.getSession();
+  // never a blank page (2026-11-10, "it's not loading"): "Wird geladen …" while the stored login is checked, and the
+  // login screen when the check fails or takes longer than 8 seconds (no network)
+  let data = { session: null };
+  try {
+    const timeout = new Promise((resolve) => setTimeout(() => resolve({ data: { session: null }, slow: true }), 8000));
+    const r = await Promise.race([db.auth.getSession(), timeout]);
+    data = r.data || data;
+    if (r.slow) $("loginErr").textContent = "Keine Verbindung – bitte Internet prüfen und neu öffnen.";
+  } catch (e) {
+    $("loginErr").textContent = "Keine Verbindung – bitte Internet prüfen und neu öffnen.";
+  }
+  $("booting").classList.add("hidden");
   const loggedIn = !!data.session;
   const user = data.session && data.session.user;
   myName = user ? ((user.user_metadata && user.user_metadata.name) || user.email || "") : "";
