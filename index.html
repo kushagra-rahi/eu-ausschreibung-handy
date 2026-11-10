@@ -91,6 +91,10 @@
   .sheet.open { display: flex; }
   .sheet .card { width: 100%; max-height: 86vh; overflow: auto; margin: 0; border-radius: 20px 20px 0 0; }
   .hidden { display: none !important; }
+  .toast { position: fixed; left: 16px; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 6;
+           display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px;
+           background: #22104A; border: 1px solid #B79BFF; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+  .toast span { flex: 1; font-weight: 600; }
   .err { color: #FCA5A5; }
   ul { padding-left: 18px; margin: 6px 0; }
 </style>
@@ -112,7 +116,8 @@
   <section id="app" class="hidden">
     <div class="row" style="justify-content:space-between">
       <h1>Übersicht</h1>
-      <button id="logoutBtn" class="ghost small">Abmelden</button>
+      <span class="row"><button id="refreshBtn" class="ghost small">↻ Aktualisieren</button>
+      <button id="logoutBtn" class="ghost small">Abmelden</button></span>
     </div>
     <p id="updated" class="muted small"></p>
     <div class="kpis">
@@ -158,6 +163,7 @@
   </section>
 
   <div id="sheet" class="sheet"><div class="card" id="detail"></div></div>
+  <div id="toast" class="toast hidden"><span id="toastText"></span><button id="toastUndo" class="ghost">↶ Rückgängig</button></div>
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -410,13 +416,7 @@ function saveButton(t) {
     box.appendChild(el("span", "saved", pending.has(pn) && t.status === "new"
       ? "✓ Gespeichert – erscheint am PC unter „2 Unterlagen“ nach dem nächsten Abgleich" : "✓ Gespeichert"));
     const undo = el("button", "ghost", "↶ Rückgängig");
-    undo.onclick = async () => {
-      undo.disabled = true;
-      if (!(await act(t, "unsave"))) { undo.disabled = false; return; }
-      pending.delete(pn);
-      if (t.status !== "new") unsaved.add(pn);
-      refreshAfter(t);
-    };
+    undo.onclick = async () => { undo.disabled = true; if (!(await undoSave(t))) undo.disabled = false; };
     box.appendChild(undo);
     return box;
   }
@@ -427,8 +427,27 @@ function saveButton(t) {
     unsaved.delete(pn);
     if (t.status === "new") pending.add(pn);
     refreshAfter(t);
+    toast(`Gespeichert: ${t.title || pn}`, t);
   };
   return b;
+}
+
+async function undoSave(t) {
+  if (!(await act(t, "unsave"))) return false;
+  pending.delete(t.publication_number);
+  if (t.status !== "new") unsaved.add(t.publication_number);
+  refreshAfter(t);
+  return true;
+}
+
+let toastTimer = null;
+/** "Gespeichert · Rückgängig" for 6 seconds after saving – a save by mistake is undone with one tap. */
+function toast(text, t) {
+  $("toastText").textContent = text.length > 70 ? text.slice(0, 68) + " …" : text;
+  $("toast").classList.remove("hidden");
+  $("toastUndo").onclick = async () => { $("toast").classList.add("hidden"); await undoSave(t); };
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $("toast").classList.add("hidden"), 6000);
 }
 
 function openDetail(t) {
@@ -461,10 +480,16 @@ function openDetail(t) {
   $("sheet").classList.add("open");
 }
 
+let loadedAt = 0;
 async function load() {
+  loadedAt = Date.now();
+  $("refreshBtn").disabled = true;
   const { data, error } = await db.from("tenders").select("*").order("score", { ascending: false }).limit(3000);
+  $("refreshBtn").disabled = false;
   if (error) { $("count").textContent = "Die Liste konnte nicht geladen werden."; return; }
   tenders = data || [];
+  // what was tapped here and not yet taken over by the PC: rebuilt from this phone's open actions
+  pending.clear(); unsaved.clear(); thumbsLocal.clear();
   const mine = await db.from("actions").select("publication_number, action").is("picked_up_at", null).order("id");
   for (const a of mine.data || []) {
     const t = tenders.find((x) => x.publication_number === a.publication_number);
@@ -495,6 +520,12 @@ $("loginBtn").onclick = async () => {
   show();
 };
 $("logoutBtn").onclick = async () => { await db.auth.signOut(); show(); };
+// "Aktualisieren" (2026-11-10): the newest upload of the PC – an app on the home screen has no reload of its own;
+// it also reloads by itself when it comes back to the front after a while
+$("refreshBtn").onclick = () => load();
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && !$("app").classList.contains("hidden") && Date.now() - loadedAt > 30000) load();
+});
 $("q").oninput = render;
 $("sort").onchange = () => { f.sort = $("sort").value; saveFilters(); render(); };
 $("resetBtn").onclick = () => { f = { ...DEFAULTS }; saveFilters(); render(); };
