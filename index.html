@@ -119,6 +119,7 @@
       <span class="row"><button id="refreshBtn" class="ghost small">↻ Aktualisieren</button>
       <button id="logoutBtn" class="ghost small">Abmelden</button></span>
     </div>
+    <p class="small" style="margin:2px 0 0">Angemeldet als <b id="who"></b></p>
     <p id="updated" class="muted small"></p>
     <div class="kpis">
       <div class="kpi"><b id="kNew">–</b><span class="muted small">neu in 7 Tagen</span></div>
@@ -170,7 +171,10 @@
 <script>
 "use strict";
 const cfg = window.TB_CONFIG;
-const db = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+// Stay logged in until "Abmelden" (2026-11-10, the user): the login is kept on the phone and renewed in the background.
+// The storage key stays Supabase's default, so nobody is logged out by an update of this page.
+const db = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey,
+  { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
 const $ = (id) => document.getElementById(id);
 let tenders = [];
 const pending = new Set();  // saved on this phone, not yet taken over by the PC
@@ -508,6 +512,7 @@ async function show() {
   const loggedIn = !!data.session;
   const user = data.session && data.session.user;
   myName = user ? ((user.user_metadata && user.user_metadata.name) || user.email || "") : "";
+  $("who").textContent = myName;
   $("login").classList.toggle("hidden", loggedIn);
   $("app").classList.toggle("hidden", !loggedIn);
   if (loggedIn) load();
@@ -519,7 +524,13 @@ $("loginBtn").onclick = async () => {
   if (error) { $("loginErr").textContent = "Anmeldung fehlgeschlagen – E-Mail oder Passwort prüfen."; return; }
   show();
 };
-$("logoutBtn").onclick = async () => { await db.auth.signOut(); show(); };
+$("logoutBtn").onclick = async () => {
+  if (!confirm("Wirklich abmelden? Danach müssen E-Mail und Passwort neu eingegeben werden.")) return;
+  await db.auth.signOut();
+  show();
+};
+// a login that became invalid (e.g. the password was changed in Supabase) brings back the login screen
+db.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") show(); });
 // "Aktualisieren" (2026-11-10): the newest upload of the PC – an app on the home screen has no reload of its own;
 // it also reloads by itself when it comes back to the front after a while
 $("refreshBtn").onclick = () => load();
