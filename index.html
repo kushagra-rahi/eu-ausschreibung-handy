@@ -55,19 +55,22 @@
   .logo svg.i { width: 30px; height: 30px; color: #fff; }
   .logo { background: radial-gradient(circle at 35% 30%, #1E5BFF, #0A2FA8 70%); }
   .logo svg.eu { width: 38px; height: 38px; }
-  .appbar { position: sticky; top: 0; z-index: 3; gap: 9px; margin: 0 -16px 12px; padding: calc(8px + env(safe-area-inset-top)) 16px 10px;
+  .logo.app { background: none; box-shadow: 0 4px 14px #1E3AA066; overflow: hidden; padding: 0; }
+  .logo.app img { width: 100%; height: 100%; display: block; }
+  .appbar { position: sticky; top: 0; z-index: 3; gap: 6px; margin: 0 -16px 12px; padding: calc(8px + env(safe-area-inset-top)) 16px 10px;
             background: rgba(11, 10, 42, 0.72); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(160, 150, 255, 0.18); }
-  .appbar .logo { width: 44px; height: 44px; border-radius: 13px; }
+  .appbar .logo { width: 42px; height: 42px; border-radius: 12px; flex: 0 0 42px; }
   .appbar .logo svg.eu { width: 32px; height: 32px; }
   .appbar .ttl { flex: 1; min-width: 0; }
-  .appbar h1 { font-size: 20px; }
+  .appbar h1 { font-size: 19px; overflow: hidden; text-overflow: ellipsis; }
+  #goldCard { cursor: pointer; }
   .appbar .hello { display: flex; align-items: center; gap: 6px; font-size: 13px; margin-top: 2px; white-space: nowrap;
                    overflow: hidden; text-overflow: ellipsis; }
   .appbar .hello .live { width: 8px; height: 8px; }
   .appbar .hello .sep { color: var(--faint); }
-  .appbar .round { width: 40px; height: 40px; }
-  .appbar .round svg.i { width: 20px; height: 20px; }
+  .appbar .round { width: 36px; height: 36px; flex: 0 0 36px; }
+  .appbar .round svg.i { width: 19px; height: 19px; }
   .appbar .round .dot { top: 4px; right: 5px; width: 9px; height: 9px; }
   #refreshBtn:disabled svg.i { animation: spin 0.9s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -278,7 +281,7 @@
 <body>
   <p id="booting" class="muted" style="margin-top:40px; text-align:center">Wird geladen …</p>
   <section id="login" class="hidden" style="padding-top: calc(16px + env(safe-area-inset-top))">
-    <div class="top"><div class="logo"><svg class="eu" viewBox="4 4 32 32" aria-label="EU"><g fill="#FFD400"><polygon points="32.00,17.40 32.64,19.12 34.47,19.20 33.04,20.34 33.53,22.10 32.00,21.09 30.47,22.10 30.96,20.34 29.53,19.20 31.36,19.12"/><polygon points="30.39,23.40 31.03,25.12 32.87,25.20 31.43,26.34 31.92,28.10 30.39,27.09 28.86,28.10 29.35,26.34 27.92,25.20 29.75,25.12"/><polygon points="26.00,27.79 26.64,29.51 28.47,29.59 27.04,30.73 27.53,32.50 26.00,31.48 24.47,32.50 24.96,30.73 23.53,29.59 25.36,29.51"/><polygon points="20.00,29.40 20.64,31.12 22.47,31.20 21.04,32.34 21.53,34.10 20.00,33.09 18.47,34.10 18.96,32.34 17.53,31.20 19.36,31.12"/><polygon points="14.00,27.79 14.64,29.51 16.47,29.59 15.04,30.73 15.53,32.50 14.00,31.48 12.47,32.50 12.96,30.73 11.53,29.59 13.36,29.51"/><polygon points="9.61,23.40 10.25,25.12 12.08,25.20 10.65,26.34 11.14,28.10 9.61,27.09 8.08,28.10 8.57,26.34 7.13,25.20 8.97,25.12"/><polygon points="8.00,17.40 8.64,19.12 10.47,19.20 9.04,20.34 9.53,22.10 8.00,21.09 6.47,22.10 6.96,20.34 5.53,19.20 7.36,19.12"/><polygon points="9.61,11.40 10.25,13.12 12.08,13.20 10.65,14.34 11.14,16.10 9.61,15.09 8.08,16.10 8.57,14.34 7.13,13.20 8.97,13.12"/><polygon points="14.00,7.01 14.64,8.72 16.47,8.80 15.04,9.95 15.53,11.71 14.00,10.70 12.47,11.71 12.96,9.95 11.53,8.80 13.36,8.72"/><polygon points="20.00,5.40 20.64,7.12 22.47,7.20 21.04,8.34 21.53,10.10 20.00,9.09 18.47,10.10 18.96,8.34 17.53,7.20 19.36,7.12"/><polygon points="26.00,7.01 26.64,8.72 28.47,8.80 27.04,9.95 27.53,11.71 26.00,10.70 24.47,11.71 24.96,9.95 23.53,8.80 25.36,8.72"/><polygon points="30.39,11.40 31.03,13.12 32.87,13.20 31.43,14.34 31.92,16.10 30.39,15.09 28.86,16.10 29.35,14.34 27.92,13.20 29.75,13.12"/></g></svg></div><div><h1>EU Ausschreibung</h1>
+    <div class="top"><div class="logo app"><img src="icon-180.png" alt="EU Ausschreibung"></div><div><h1>EU Ausschreibung</h1>
       <div class="hello">Bitte anmelden.</div></div></div>
     <div class="card">
       <input id="email" type="email" placeholder="E-Mail" autocomplete="username">
@@ -294,17 +297,16 @@
     <!-- one compact bar that stays at the top (2026-11-11, the user: "the EU Ausschreibung symbol at the top, optimise
          the top bar") -->
     <div class="top appbar">
-      <div class="logo"><svg class="eu" viewBox="4 4 32 32" aria-label="EU"><g fill="#FFD400"><polygon points="32.00,17.40 32.64,19.12 34.47,19.20 33.04,20.34 33.53,22.10 32.00,21.09 30.47,22.10 30.96,20.34 29.53,19.20 31.36,19.12"/><polygon points="30.39,23.40 31.03,25.12 32.87,25.20 31.43,26.34 31.92,28.10 30.39,27.09 28.86,28.10 29.35,26.34 27.92,25.20 29.75,25.12"/><polygon points="26.00,27.79 26.64,29.51 28.47,29.59 27.04,30.73 27.53,32.50 26.00,31.48 24.47,32.50 24.96,30.73 23.53,29.59 25.36,29.51"/><polygon points="20.00,29.40 20.64,31.12 22.47,31.20 21.04,32.34 21.53,34.10 20.00,33.09 18.47,34.10 18.96,32.34 17.53,31.20 19.36,31.12"/><polygon points="14.00,27.79 14.64,29.51 16.47,29.59 15.04,30.73 15.53,32.50 14.00,31.48 12.47,32.50 12.96,30.73 11.53,29.59 13.36,29.51"/><polygon points="9.61,23.40 10.25,25.12 12.08,25.20 10.65,26.34 11.14,28.10 9.61,27.09 8.08,28.10 8.57,26.34 7.13,25.20 8.97,25.12"/><polygon points="8.00,17.40 8.64,19.12 10.47,19.20 9.04,20.34 9.53,22.10 8.00,21.09 6.47,22.10 6.96,20.34 5.53,19.20 7.36,19.12"/><polygon points="9.61,11.40 10.25,13.12 12.08,13.20 10.65,14.34 11.14,16.10 9.61,15.09 8.08,16.10 8.57,14.34 7.13,13.20 8.97,13.12"/><polygon points="14.00,7.01 14.64,8.72 16.47,8.80 15.04,9.95 15.53,11.71 14.00,10.70 12.47,11.71 12.96,9.95 11.53,8.80 13.36,8.72"/><polygon points="20.00,5.40 20.64,7.12 22.47,7.20 21.04,8.34 21.53,10.10 20.00,9.09 18.47,10.10 18.96,8.34 17.53,7.20 19.36,7.12"/><polygon points="26.00,7.01 26.64,8.72 28.47,8.80 27.04,9.95 27.53,11.71 26.00,10.70 24.47,11.71 24.96,9.95 23.53,8.80 25.36,8.72"/><polygon points="30.39,11.40 31.03,13.12 32.87,13.20 31.43,14.34 31.92,16.10 30.39,15.09 28.86,16.10 29.35,14.34 27.92,13.20 29.75,13.12"/></g></svg></div>
+      <div class="logo app"><img src="icon-180.png" alt="EU Ausschreibung"></div>
       <div class="ttl"><h1>EU Ausschreibung</h1>
         <div class="hello"><span class="live"></span><b id="who"></b><span class="sep">·</span><span id="updated"></span></div></div>
       <button id="refreshBtn" class="round" title="Aktualisieren"><span data-icon="refresh"></span></button>
-      <button id="bellBtn" class="round" title="Goldfunde"><span data-icon="bell"></span><span id="bellDot" class="dot hidden"></span></button>
       <button id="meBtn" class="round me" title="Konto"><span data-icon="user"></span></button>
     </div>
     <div class="kpis">
       <div class="kpi k1"><span data-icon="filePlus"></span><span id="tNew" class="trend hidden"></span>
         <b id="kNew">–</b><span class="lbl">Neu in 7 Tagen</span></div>
-      <div class="kpi k2"><span data-icon="star"></span><span id="tGold" class="trend hidden"></span>
+      <div class="kpi k2" id="goldCard" role="button" title="Goldfunde anzeigen"><span data-icon="star"></span><span id="tGold" class="trend hidden"></span>
         <b id="kGold">–</b><span class="lbl">Goldfunde</span></div>
       <div class="kpi k3"><span data-icon="calendar"></span>
         <b id="kSoon">–</b><span class="lbl">Frist in 7 Tagen</span></div>
@@ -534,7 +536,6 @@ function render() {
   const gold = tenders.filter((t) => t.gold && t.status === "new");
   $("kGold").textContent = gold.length;
   trend("tGold", gold.filter(inWeek).length, gold.filter(inPrev).length);
-  $("bellDot").classList.toggle("hidden", !gold.length);
   $("showText").textContent = `Treffer anzeigen (${shown.length})`;
   $("kSoon").textContent = tenders.filter((t) => { const d = daysLeft(t.deadline); return d !== null && d >= 0 && d <= 7; }).length;
   $("kSaved").textContent = savedList.length;
@@ -981,7 +982,8 @@ $("meBtn").onclick = () => {
   d.append(out, close);
   $("sheet").classList.add("open");
 };
-$("bellBtn").onclick = () => { listMode = "gold"; render(); $("segList").scrollIntoView({ behavior: "smooth" }); };
+// the Goldfunde card opens the Goldfunde (2026-11-11: the bell left the top bar, the title had no room on an iPhone)
+$("goldCard").onclick = () => { listMode = "gold"; render(); $("segList").scrollIntoView({ behavior: "smooth" }); };
 $("showBtn").onclick = () => { if (listMode === "gold") listMode = "results"; render(); $("segList").scrollIntoView({ behavior: "smooth" }); };
 $("filterHead").onclick = () => {
   $("filters").classList.toggle("closed");
