@@ -57,8 +57,10 @@
   .logo svg.eu { width: 38px; height: 38px; }
   .logo.app { background: none; box-shadow: 0 4px 14px #1E3AA066; overflow: hidden; padding: 0; }
   .logo.app img { width: 100%; height: 100%; display: block; }
-  .appbar { position: sticky; top: 0; z-index: 3; gap: 6px; margin: 0 -16px 12px; padding: calc(8px + env(safe-area-inset-top)) 16px 10px;
-            background: rgba(11, 10, 42, 0.72); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  /* about 0.5 cm below the Dynamic Island (2026-11-11, the user on an iPhone 17: "the top bar goes blurry close to the
+     notch"), the space above filled solidly so nothing slides blurred under the island */
+  .appbar { position: sticky; top: 0; z-index: 3; gap: 6px; margin: 0 -16px 12px; padding: calc(20px + env(safe-area-inset-top)) 16px 10px;
+            background: linear-gradient(180deg, #0B0A2A 0, #0B0A2A calc(env(safe-area-inset-top) + 8px), rgba(11, 10, 42, 0.86) 100%); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(160, 150, 255, 0.18); }
   .appbar .logo { width: 42px; height: 42px; border-radius: 12px; flex: 0 0 42px; }
   .appbar .logo svg.eu { width: 32px; height: 32px; }
@@ -164,14 +166,19 @@
   .tcard::after { content: ""; position: absolute; right: -40px; bottom: 38px; width: 260px; height: 120px; pointer-events: none;
                   border-top: 3px solid rgba(214, 120, 255, 0.85); border-radius: 50% 50% 0 0 / 100% 100% 0 0;
                   transform: rotate(-14deg); filter: drop-shadow(0 0 8px #C04BFF); opacity: .8; }
-  .tcard .art { position: absolute; right: 18px; bottom: 74px; width: 96px; height: 96px; pointer-events: none;
-                stroke: #9C7BFF; fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }
-  .tmain { position: relative; z-index: 1; display: flex; gap: 14px; }
-  .tbody { flex: 1; min-width: 0; padding-right: 26px; }
-  .sring { position: relative; flex: 0 0 76px; width: 76px; height: 76px; }
-  .sring svg { width: 76px; height: 76px; transform: rotate(-90deg); }
+  .tcard .art { position: absolute; right: 14px; bottom: 82px; width: 78px; height: 78px; pointer-events: none;
+                stroke: #9C7BFF; fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; opacity: .35; }
+  .tmain { position: relative; z-index: 1; }
+  .thead { display: flex; align-items: center; gap: 12px; padding-right: 36px; }
+  .thead .badges { flex: 1; min-width: 0; margin: 0; }
+  .tbody { min-width: 0; }
+  .dpill { margin-left: 4px; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 12px; white-space: nowrap;
+           color: #F3D9FF; background: rgba(110, 40, 160, 0.55); border: 1px solid #C77BFF; }
+  .dpill.warn { color: #FFD1D8; background: rgba(150, 30, 60, 0.55); border-color: #E06A80; }
+  .sring { position: relative; flex: 0 0 68px; width: 68px; height: 68px; }
+  .sring svg { width: 68px; height: 68px; transform: rotate(-90deg); }
   .sring .num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1; }
-  .sring .num b { font-size: 25px; font-weight: 800; }
+  .sring .num b { font-size: 23px; font-weight: 800; }
   .sring .num span { font-size: 12px; color: var(--muted); margin-top: 3px; }
   .sring .ok { position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; display: grid;
                place-items: center; background: #22C55E; color: #fff; font-size: 13px; font-weight: 900;
@@ -180,15 +187,16 @@
               background: transparent; border: 0; display: grid; place-items: center; }
   .bookmark svg.i { width: 26px; height: 26px; }
   .bookmark.on svg.i { fill: #E9DAFF; stroke: #E9DAFF; }
-  .tcard .title { font-size: 18px; line-height: 1.25; margin: 8px 0 8px; }
+  .tcard .title { font-size: 18px; line-height: 1.28; margin: 12px 0 8px; }
   .meta { display: flex; align-items: center; gap: 9px; color: #DAD4FF; font-size: 15px; margin-top: 5px; }
   .meta svg.i { width: 20px; height: 20px; color: var(--muted); }
-  .tactions { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .tactions { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; margin-top: 14px; }
   .tactions .grow { flex: 1; }
-  .tactions .save { padding: 11px 20px; border-radius: 16px; font-size: 16px; }
-  .tactions .more { background: rgba(20, 16, 60, 0.6); border: 1px solid #7C70D8; padding: 11px 18px; border-radius: 16px;
-                    font-size: 16px; }
-  .tactions .thumb { width: 50px; height: 46px; padding: 0; font-size: 22px; border-radius: 16px;
+  .tactions .save { padding: 11px 12px; border-radius: 16px; font-size: 15.5px; white-space: nowrap; }
+  .tactions > .row { flex-wrap: nowrap; gap: 6px; margin-left: auto; }
+  .tactions .more { background: rgba(20, 16, 60, 0.6); border: 1px solid #7C70D8; padding: 11px 11px; border-radius: 16px;
+                    font-size: 15.5px; white-space: nowrap; }
+  .tactions .thumb { width: 40px; height: 42px; padding: 0; font-size: 19px; border-radius: 13px; flex: 0 0 40px;
                      background: rgba(20, 16, 60, 0.6); border: 1px solid #5A50B0; }
   .badge.b-leist { color: #E3DEFF; border-color: #7C70D8; background: rgba(40, 34, 110, 0.8); }
   .badge.b-days { color: #F3D9FF; border-color: #C77BFF; background: rgba(110, 40, 160, 0.55); }
@@ -218,7 +226,7 @@
   .page { position: fixed; inset: 0; z-index: 4; overflow-y: auto; -webkit-overflow-scrolling: touch;
           background: radial-gradient(80% 40% at 0% 0%, #3A2AB0AA, transparent 70%),
                       radial-gradient(70% 45% at 100% 40%, #5B1FB088, transparent 70%), var(--bg);
-          padding: calc(10px + env(safe-area-inset-top)) 16px calc(150px + env(safe-area-inset-bottom)); }
+          padding: calc(22px + env(safe-area-inset-top)) 16px calc(150px + env(safe-area-inset-bottom)); }
   .pbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
   .pbar h2 { flex: 1; text-align: center; font-size: 19px; margin: 0; }
   .sq { width: 46px; height: 46px; padding: 0; border-radius: 14px; display: grid; place-items: center;
@@ -280,7 +288,7 @@
 </head>
 <body>
   <p id="booting" class="muted" style="margin-top:40px; text-align:center">Wird geladen …</p>
-  <section id="login" class="hidden" style="padding-top: calc(16px + env(safe-area-inset-top))">
+  <section id="login" class="hidden" style="padding-top: calc(28px + env(safe-area-inset-top))">
     <div class="top"><div class="logo app"><img src="icon-180.png" alt="EU Ausschreibung"></div><div><h1>EU Ausschreibung</h1>
       <div class="hello">Bitte anmelden.</div></div></div>
     <div class="card">
@@ -605,13 +613,13 @@ function badge(cls, text, iconName) {
   if (iconName) b.prepend(uiIcon(iconName));
   return b;
 }
-function badges(t) {
+function badges(t, withDays = true) {
   const box = el("div", "badges");
   if (t.gold) box.appendChild(badge("b-gold", "Goldfund", "trophy"));
   if (t.phase_label) box.appendChild(badge("b-green", t.phase_label));
   if (t.bereich_label) box.appendChild(badge("b-mint", t.bereich_label));
   if (t.leistung_label) box.appendChild(badge("b-leist", t.leistung_label, "hardhat"));
-  const c = countdown(t.deadline);
+  const c = withDays ? countdown(t.deadline) : null;
   if (c) box.appendChild(badge("b-days" + (c.warn ? " warn" : ""), c.text, "calendar"));
   return box;
 }
@@ -656,21 +664,27 @@ function card(t) {
   const drawing = art(t);
   if (drawing) c.appendChild(drawing);
   c.appendChild(bookmark(t));
+  // 2026-11-11, the user: "make it better" – ring and badges in the top row, the title across the whole card, the
+  // countdown beside the Frist (the badges had wrapped into four rows beside the ring on an iPhone)
   const main = el("div", "tmain");
+  const head = el("div", "thead");
+  head.append(scoreRing(t), badges(t, false));
   const body = el("div", "tbody");
-  body.append(badges(t), el("div", "title", t.title || "(ohne Titel)"));
+  body.appendChild(el("div", "title", t.title || "(ohne Titel)"));
   const buyer = el("div", "meta", t.buyer || "");
   buyer.prepend(uiIcon("building"));
-  const due = el("div", "meta", `Frist: ${fmtDate(t.deadline)}`);
+  const due = el("div", "meta", t.deadline ? fmtDate(t.deadline) : "Frist nicht angegeben");
   due.prepend(uiIcon("calendar"));
+  const left = countdown(t.deadline);
+  if (left) due.appendChild(el("span", "dpill" + (left.warn ? " warn" : ""), left.text));
   body.append(buyer, due);
-  main.append(scoreRing(t), body);
+  main.append(head, body);
   const actions = el("div", "tactions");
   const more = el("button", "more", "Details ");
   more.appendChild(uiIcon("arrow"));
   more.style.display = "inline-flex"; more.style.alignItems = "center"; more.style.gap = "6px";
   more.onclick = () => openDetail(t);
-  actions.append(saveButton(t), more, el("span", "grow"), thumbs(t));
+  actions.append(saveButton(t), more, thumbs(t));
   c.append(main, actions);
   return c;
 }
