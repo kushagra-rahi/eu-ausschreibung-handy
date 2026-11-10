@@ -104,36 +104,76 @@
   .filters.closed .fhead { border-bottom: 0; }
   .fbody { padding: 4px 14px 14px; }
   /* compact (2026-11-11, the user: "optimise its length, it is very long"): labels beside their choices, chips */
-  .frow { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-  .frow > .flabel { margin: 0; flex: 0 0 78px; font-size: 14px; white-space: nowrap; }
+  .frow { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+  .frow > .flabel { margin: 0; flex: 0 0 auto; white-space: nowrap; }
   .frow > .seg, .frow > .ticks, .frow > select { flex: 1; min-width: 0; }
-  .flabel { display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 700;
-            margin: 10px 0 6px; }
+  .flabel { display: flex; align-items: center; justify-content: space-between; font-size: 17px; font-weight: 700;
+            margin: 16px 0 9px; }
   .flabel .hint { font-weight: 400; font-size: 13.5px; color: var(--muted); }
   .flabel .pill { font-size: 13px; font-weight: 600; padding: 3px 11px; border-radius: 12px;
                   background: linear-gradient(90deg, var(--from), var(--to)); }
   .seg { display: flex; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; padding: 3px; gap: 3px;
          background: rgba(255,255,255,0.03); }
-  .seg button { flex: 1; border-radius: 14px; background: transparent; padding: 8px 2px; font-size: 14px; font-weight: 500;
+  .seg button { flex: 1; border-radius: 15px; background: transparent; padding: 10px 2px; font-size: 15px; font-weight: 500;
                 white-space: nowrap; }
   .seg button.on { background: linear-gradient(90deg, var(--from), var(--to)); font-weight: 700;
                    box-shadow: 0 4px 14px #8A3BFF55; }
   .seg button.on::after { content: " ✓"; }
   .sortrow select { padding: 9px 36px 9px 14px; border-radius: 14px; font-size: 14.5px;
     background: rgba(255,255,255,0.05) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F4F2FF' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center / 18px; }
-  .ticks { display: flex; flex-wrap: wrap; gap: 7px; }
-  .tick { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.04); border: 1px solid var(--line);
-          border-radius: 14px; padding: 7px 11px; text-align: left; font-weight: 500; font-size: 14px; }
+  /* the user's picture (2026-11-11, "make it exactly like this"): tiles with a tick box, two columns; LPH three */
+  .ticks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ticks.three { grid-template-columns: 1fr 1fr 1fr; }
+  .tick { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+          border-radius: 16px; padding: 12px; text-align: left; font-weight: 500; font-size: 15px; min-height: 54px; }
   .tick .box { flex: 0 0 22px; height: 22px; border: 1.6px solid #B7AEFF; border-radius: 6px; display: grid;
                place-items: center; font-size: 14px; font-weight: 800; }
-  .tick .box { display: none; }
-  .tick svg { flex: 0 0 18px; width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7;
+  .tick svg { flex: 0 0 22px; width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7;
               stroke-linecap: round; stroke-linejoin: round; }
-  .tick.on { background: linear-gradient(90deg, var(--from), var(--to)); border-color: transparent; font-weight: 700; }
+  .tick.on { background: rgba(110, 60, 230, 0.28); border-color: #A58BFF; box-shadow: inset 0 0 0 1px #A58BFF; }
   .tick.on .box { background: linear-gradient(135deg, var(--from), var(--to)); border-color: transparent; color: #fff; }
-  .reset { display: block; margin: 12px 0 0 auto; padding: 7px 14px; font-size: 14px; border-radius: 14px; }
-  .showbtn { width: 100%; margin: 14px 0 6px; padding: 15px; font-size: 18px; border-radius: 22px; display: flex;
+  .reset { padding: 4px 11px; font-size: 13px; font-weight: 600; border-radius: 12px; }
+  .showbtn { width: 100%; margin: 18px 0 2px; padding: 16px; font-size: 19px; border-radius: 22px; display: flex;
              align-items: center; justify-content: center; gap: 12px; box-shadow: 0 10px 30px #6A3BFF55; }
+
+  /* the tender cards of the user's picture (2026-11-11, "make cards like this") */
+  .tcard { position: relative; overflow: hidden; border-radius: 22px; padding: 16px 14px 14px; margin: 14px 0;
+           border: 1px solid rgba(170, 150, 255, 0.38);
+           background: linear-gradient(150deg, rgba(36, 26, 100, 0.9), rgba(28, 20, 80, 0.88) 55%, rgba(70, 24, 130, 0.85)); }
+  .tcard::after { content: ""; position: absolute; right: -40px; bottom: 38px; width: 260px; height: 120px; pointer-events: none;
+                  border-top: 3px solid rgba(214, 120, 255, 0.85); border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+                  transform: rotate(-14deg); filter: drop-shadow(0 0 8px #C04BFF); opacity: .8; }
+  .tcard .art { position: absolute; right: 18px; bottom: 74px; width: 96px; height: 96px; pointer-events: none;
+                stroke: #9C7BFF; fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; opacity: .55; }
+  .tmain { position: relative; z-index: 1; display: flex; gap: 14px; }
+  .tbody { flex: 1; min-width: 0; padding-right: 26px; }
+  .sring { position: relative; flex: 0 0 76px; width: 76px; height: 76px; }
+  .sring svg { width: 76px; height: 76px; transform: rotate(-90deg); }
+  .sring .num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1; }
+  .sring .num b { font-size: 25px; font-weight: 800; }
+  .sring .num span { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .sring .ok { position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; display: grid;
+               place-items: center; background: #22C55E; color: #fff; font-size: 13px; font-weight: 900;
+               box-shadow: 0 0 10px #22C55E; }
+  .bookmark { position: absolute; top: 14px; right: 12px; z-index: 2; width: 34px; height: 34px; padding: 0;
+              background: transparent; border: 0; display: grid; place-items: center; }
+  .bookmark svg.i { width: 26px; height: 26px; }
+  .bookmark.on svg.i { fill: #E9DAFF; stroke: #E9DAFF; }
+  .tcard .title { font-size: 18px; line-height: 1.25; margin: 8px 0 8px; }
+  .meta { display: flex; align-items: center; gap: 9px; color: #DAD4FF; font-size: 15px; margin-top: 5px; }
+  .meta svg.i { width: 20px; height: 20px; color: var(--muted); }
+  .tactions { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .tactions .grow { flex: 1; }
+  .tactions .save { padding: 11px 20px; border-radius: 16px; font-size: 16px; }
+  .tactions .more { background: rgba(20, 16, 60, 0.6); border: 1px solid #7C70D8; padding: 11px 18px; border-radius: 16px;
+                    font-size: 16px; }
+  .tactions .thumb { width: 50px; height: 46px; padding: 0; font-size: 22px; border-radius: 16px;
+                     background: rgba(20, 16, 60, 0.6); border: 1px solid #5A50B0; }
+  .badge.b-leist { color: #E3DEFF; border-color: #7C70D8; background: rgba(40, 34, 110, 0.8); }
+  .badge.b-days { color: #F3D9FF; border-color: #C77BFF; background: rgba(110, 40, 160, 0.55); }
+  .badge.b-days.warn { color: #FCA5A5; border-color: #E06A80; }
+  .badges .badge { font-size: 13.5px; padding: 4px 11px; border-radius: 14px; display: inline-flex; align-items: center; gap: 5px; }
+  .badges .badge svg.i { width: 15px; height: 15px; }
 
   /* list and tender cards */
   .tender { display: flex; gap: 12px; }
@@ -207,7 +247,7 @@
       <button id="filterHead" class="fhead"><span data-icon="sliders"></span>Filter
         <span id="activeCount" class="active hidden"></span><span class="chev" data-icon="chevUp"></span></button>
       <div class="fbody">
-        <div class="flabel">Ansicht</div>
+        <div class="flabel">Ansicht <button id="resetBtn" class="ghost reset">↺ Zurücksetzen</button></div>
         <div class="seg" id="segView"></div>
         <div class="flabel">Zeitraum</div>
         <div class="seg" id="segPeriod"></div>
@@ -217,17 +257,18 @@
             <option value="deadline">Frist (früheste zuerst)</option>
             <option value="new">Neueste zuerst</option>
           </select></div>
-        <div class="flabel">Fachgebiet <span class="hint">mehrere möglich</span></div>
+        <div class="flabel">Fachgebiet <span class="hint">Mehrfachauswahl möglich</span></div>
         <div class="ticks" id="ticksFach"></div>
-        <div class="frow"><div class="flabel">LPH</div><div class="ticks" id="ticksPhase"></div>
-          <span class="hidden" id="phasePill"></span></div>
-        <div class="frow"><div class="flabel">Frist (Wo.)</div><div class="seg" id="segDeadline"></div></div>
-        <div class="frow"><div class="flabel">Land</div><div class="seg" id="segCountry"></div></div>
-        <button id="resetBtn" class="ghost reset">↺ Zurücksetzen</button>
+        <div class="flabel">Leistungsphase (LPH) <span class="pill" id="phasePill">alle Phasen</span></div>
+        <div class="ticks three" id="ticksPhase"></div>
+        <div class="flabel">Frist noch (Wochen)</div>
+        <div class="seg" id="segDeadline"></div>
+        <div class="flabel">Land</div>
+        <div class="seg" id="segCountry"></div>
+        <button id="showBtn" class="showbtn"><span data-icon="search"></span><span id="showText">Treffer anzeigen</span>
+          <span>→</span></button>
       </div>
     </div>
-    <button id="showBtn" class="showbtn"><span data-icon="search"></span><span id="showText">Treffer anzeigen</span>
-      <span>→</span></button>
 
     <div class="seg" id="segList" style="margin-top:18px"></div>
     <p id="count" class="muted small"></p>
@@ -255,7 +296,7 @@ const thumbsLocal = new Map();  // 👍 / 👎 tapped on this phone, not yet tak
 let myName = "";  // as the PC knows this person: the login's name, else its e-mail
 
 // The same choices and defaults as Suchen on the PC.
-const VIEWS = [["kern", "LPH 5–8"], ["mit_planung", "+ LPH 1–4"], ["alle", "Alle"]];
+const VIEWS = [["kern", "LPH 5–8"], ["mit_planung", "+ Planung 1–4"], ["alle", "Alle Treffer"]];
 const PERIODS = [[14, "2 Wochen"], [28, "4 Wochen"], [42, "6 Wochen"]];
 const FACH = [["tiefbau", "Tiefbau"], ["hochbau", "Hochbau"], ["elektro", "Elektro / TGA"], ["energie", "Energie & Netze"],
               ["zaehler", "Zähler & Messstellen"], ["pipeline", "Pipeline"], ["engineering", "Engineering"],
@@ -286,6 +327,10 @@ const UI_ICONS = {
   mic: "M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21",
   sliders: "M4 7h10M18 7h2M4 17h4M12 17h8M14 4v6M8 14v6",
   chevUp: "M6 15l6-6 6 6",
+  trophy: "M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4",
+  hardhat: "M4 17h16M6 17a6 6 0 0 1 12 0M10 11V8h4v3",
+  building: "M5 21V4h10v17M15 9h4v12M8 8h1M11 8h1M8 12h1M11 12h1M8 16h1M11 16h1M3 21h18",
+  arrow: "M5 12h14M13 6l6 6-6 6",
 };
 function uiIcon(name) {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -297,6 +342,15 @@ function uiIcon(name) {
   return svg;
 }
 document.querySelectorAll("[data-icon]").forEach((e) => e.prepend(uiIcon(e.dataset.icon)));
+const ART = {  // faint line drawings at the bottom right of a card, by its Fachgebiet
+  pylon: "M32 4L20 60M32 4l12 56M24 22h16M22 32h20M19 44h26M8 22h48M12 32h40M24 22l18 22M40 22L22 44M32 4v4",
+  tunnel: "M8 60V34a24 24 0 0 1 48 0v26M16 60V35a16 16 0 0 1 32 0v25M24 60l4-14M40 60l-4-14M2 60h60",
+  building: "M14 60V14h24v46M38 28h14v32M20 22h4M28 22h4M20 32h4M28 32h4M20 42h4M28 42h4M44 36h4M44 46h4M8 60h50",
+  gauge: "M8 44a24 24 0 0 1 48 0M32 44l12-14M14 50h36M32 18v4M16 26l3 3M48 26l-3 3",
+  gear: "M32 22a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM32 6v8M32 50v8M6 32h8M50 32h8M13 13l6 6M45 45l6 6M13 51l6-6M45 19l6-6",
+};
+const ART_OF = { energie: "pylon", elektro: "pylon", pipeline: "pylon", tiefbau: "tunnel", hochbau: "building",
+                 architektur: "building", zaehler: "gauge", engineering: "gear" };
 const PHASE_FREE = ["zaehler"];  // meter swaps have no LPH: shown in the LPH views too
 const DEFAULTS = { view: "kern", period: 28, fach: [], phases: [], deadline: 0, country: "", sort: "score" };
 let f = loadFilters();
@@ -463,34 +517,91 @@ function renderControls() {
   $("activeCount").classList.toggle("hidden", !active);
 }
 
+function badge(cls, text, iconName) {
+  const b = el("span", "badge " + cls, text);
+  if (iconName) b.prepend(uiIcon(iconName));
+  return b;
+}
 function badges(t) {
   const box = el("div", "badges");
-  if (t.gold) box.appendChild(el("span", "badge b-gold", "🏆 Goldfund"));
-  if (t.phase_label) box.appendChild(el("span", "badge b-green", t.phase_label));
-  if (t.bereich_label) box.appendChild(el("span", "badge b-mint", t.bereich_label));
-  if (t.leistung_label) box.appendChild(el("span", "badge b-violet", t.leistung_label));
+  if (t.gold) box.appendChild(badge("b-gold", "Goldfund", "trophy"));
+  if (t.phase_label) box.appendChild(badge("b-green", t.phase_label));
+  if (t.bereich_label) box.appendChild(badge("b-mint", t.bereich_label));
+  if (t.leistung_label) box.appendChild(badge("b-leist", t.leistung_label, "hardhat"));
   const c = countdown(t.deadline);
-  if (c) box.appendChild(el("span", "badge days" + (c.warn ? " warn" : ""), c.text));
+  if (c) box.appendChild(badge("b-days" + (c.warn ? " warn" : ""), c.text, "calendar"));
   return box;
 }
 
+/** The score as a ring: an arc from green to teal as long as the score, the number inside, ✓ for a Goldfund. */
+function scoreRing(t) {
+  const score = Math.max(0, Math.min(100, t.score || 0));
+  const box = el("div", "sring");
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 76 76");
+  const id = "g" + t.publication_number.replace(/[^A-Za-z0-9]/g, "");
+  const colors = score >= 70 ? ["#22E05A", "#22D3C5"] : score >= 40 ? ["#F59E0B", "#FBBF24"] : ["#EF4444", "#F97316"];
+  svg.innerHTML = `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${colors[0]}"/>`
+    + `<stop offset="1" stop-color="${colors[1]}"/></linearGradient></defs>`
+    + `<circle cx="38" cy="38" r="32" fill="rgba(10,8,40,.55)" stroke="rgba(255,255,255,.08)" stroke-width="7"/>`
+    + `<circle cx="38" cy="38" r="32" fill="none" stroke="url(#${id})" stroke-width="7" stroke-linecap="round"`
+    + ` stroke-dasharray="${(2 * Math.PI * 32 * score / 100).toFixed(1)} 999"/>`;
+  box.appendChild(svg);
+  const num = el("div", "num");
+  num.append(el("b", "", String(score)), el("span", "", "Score"));
+  box.appendChild(num);
+  if (t.gold) box.appendChild(el("span", "ok", "✓"));
+  return box;
+}
+
+function art(t) {
+  const name = ART_OF[t.bereich_key];
+  if (!name) return null;
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 64 64");
+  svg.setAttribute("class", "art");
+  const path = document.createElementNS(ns, "path");
+  path.setAttribute("d", ART[name]);
+  svg.appendChild(path);
+  return svg;
+}
+
 function card(t) {
-  const c = el("div", "card tender");
-  const ring = el("div", "ring", String(t.score ?? 0));
-  ring.style.borderColor = ring.style.color = ringColor(t.score || 0);
-  const body = el("div");
-  body.style.minWidth = "0";
-  body.append(badges(t), el("div", "title", t.title || "(ohne Titel)"), el("div", "muted small", t.buyer || ""));
-  body.appendChild(el("div", "small", `Frist ${fmtDate(t.deadline)}`));
-  const row = el("div", "row");
-  row.style.marginTop = "8px";
-  row.appendChild(saveButton(t));
-  const more = el("button", "ghost", "Details");
+  const c = el("div", "tcard");
+  const drawing = art(t);
+  if (drawing) c.appendChild(drawing);
+  c.appendChild(bookmark(t));
+  const main = el("div", "tmain");
+  const body = el("div", "tbody");
+  body.append(badges(t), el("div", "title", t.title || "(ohne Titel)"));
+  const buyer = el("div", "meta", t.buyer || "");
+  buyer.prepend(uiIcon("building"));
+  const due = el("div", "meta", `Frist: ${fmtDate(t.deadline)}`);
+  due.prepend(uiIcon("calendar"));
+  body.append(buyer, due);
+  main.append(scoreRing(t), body);
+  const actions = el("div", "tactions");
+  const more = el("button", "more", "Details ");
+  more.appendChild(uiIcon("arrow"));
+  more.style.display = "inline-flex"; more.style.alignItems = "center"; more.style.gap = "6px";
   more.onclick = () => openDetail(t);
-  row.append(more, thumbs(t));
-  body.appendChild(row);
-  c.append(ring, body);
+  actions.append(saveButton(t), more, el("span", "grow"), thumbs(t));
+  c.append(main, actions);
   return c;
+}
+
+/** The bookmark at the top right: saves with one tap, or undoes a save that is still only saved. */
+function bookmark(t) {
+  const b = el("button", "bookmark" + (isSaved(t) ? " on" : ""));
+  b.appendChild(uiIcon("bookmark"));
+  b.title = isSaved(t) ? "Gespeichert" : "Speichern";
+  b.onclick = async () => {
+    if (!isSaved(t)) await doSave(t);
+    else if (status(t) === "saved") await undoSave(t);
+  };
+  return b;
 }
 
 function myThumb(t) {
@@ -538,22 +649,25 @@ function saveButton(t) {
     if (status(t) !== "saved") return el("span", "saved", "✓ In Arbeit am PC");
     const box = el("span", "row");
     box.appendChild(el("span", "saved", pending.has(pn) && t.status === "new"
-      ? "✓ Gespeichert – erscheint am PC unter „2 Unterlagen“ nach dem nächsten Abgleich" : "✓ Gespeichert"));
+      ? "✓ Gespeichert – kommt auf den PC" : "✓ Gespeichert"));
     const undo = el("button", "ghost", "↶ Rückgängig");
     undo.onclick = async () => { undo.disabled = true; if (!(await undoSave(t))) undo.disabled = false; };
     box.appendChild(undo);
     return box;
   }
-  const b = el("button", "", "☆ Speichern");
-  b.onclick = async () => {
-    b.disabled = true;
-    if (!(await act(t, "save"))) { b.disabled = false; return; }
-    unsaved.delete(pn);
-    if (t.status === "new") pending.add(pn);
-    refreshAfter(t);
-    toast(`Gespeichert: ${t.title || pn}`, t);
-  };
+  const b = el("button", "save", "☆ Speichern");
+  b.onclick = async () => { b.disabled = true; if (!(await doSave(t))) b.disabled = false; };
   return b;
+}
+
+async function doSave(t) {
+  const pn = t.publication_number;
+  if (!(await act(t, "save"))) return false;
+  unsaved.delete(pn);
+  if (t.status === "new") pending.add(pn);
+  refreshAfter(t);
+  toast(`Gespeichert: ${t.title || pn}`, t);
+  return true;
 }
 
 async function undoSave(t) {
