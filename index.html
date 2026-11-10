@@ -20,11 +20,15 @@
   html, body { margin: 0; }
   body {
     min-height: 100vh; color: var(--text); font: 15px/1.4 -apple-system, "Segoe UI", system-ui, sans-serif;
-    background: radial-gradient(60% 50% at 0% 40%, #4A0E8C99, transparent 70%),
-                radial-gradient(60% 50% at 100% 50%, #182A9C99, transparent 70%), var(--bg);
-    background-attachment: fixed;
+    background: var(--bg);
     padding: env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom));
   }
+  /* The glow sits on a layer fixed to the screen (2026-11-10, the user: "the background colour constantly changes when I
+     change the Fachgebiet"): iPhone Safari ignores background-attachment: fixed, so a body background stretched over
+     the page moved with every longer or shorter list. */
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(70% 45% at 0% 35%, #4A0E8C99, transparent 70%),
+                radial-gradient(70% 45% at 100% 60%, #182A9C99, transparent 70%); }
   h1 { font-size: 24px; margin: 18px 0 4px; }
   h2 { font-size: 20px; margin: 18px 0 8px; }
   .muted { color: var(--muted); } .small { font-size: 13px; }
@@ -79,6 +83,9 @@
   .days { color: var(--text); background: rgba(150, 50, 230, 0.45); border-color: rgba(215,150,255,.6); }
   .days.warn { color: #FCA5A5; }
   .saved { color: #7CF29E; font-weight: 600; }
+  .thumb { background: rgba(60, 16, 120, 0.45); border: 1px solid var(--line); border-radius: 14px; padding: 8px 14px; }
+  .thumb.fit.on { background: #16A34A; border-color: #16A34A; }
+  .thumb.nofit.on { background: #EA580C; border-color: #EA580C; }
   a { color: var(--link); }
   .sheet { position: fixed; inset: 0; background: rgba(8, 2, 20, 0.7); display: none; align-items: flex-end; z-index: 5; }
   .sheet.open { display: flex; }
@@ -160,6 +167,8 @@ const db = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
 const $ = (id) => document.getElementById(id);
 let tenders = [];
 const pending = new Set();  // saved on this phone, not yet taken over by the PC
+const thumbsLocal = new Map();  // 👍 / 👎 tapped on this phone, not yet taken over: publication number → label or null
+let myName = "";  // as the PC knows this person: the login's name, else its e-mail
 
 // The same choices and defaults as Suchen on the PC.
 const VIEWS = [["kern", "LPH 5–8"], ["mit_planung", "+ Planung 1–4"], ["alle", "Alle Treffer"]];
@@ -334,10 +343,36 @@ function card(t) {
   row.appendChild(saveButton(t));
   const more = el("button", "ghost", "Details");
   more.onclick = () => openDetail(t);
-  row.appendChild(more);
+  row.append(more, thumbs(t));
   body.appendChild(row);
   c.append(ring, body);
   return c;
+}
+
+function myThumb(t) {
+  return thumbsLocal.has(t.publication_number) ? thumbsLocal.get(t.publication_number) : ((t.feedback || {})[myName] || null);
+}
+
+/** 👍 / 👎 like on the PC: in this person's name, a second tap removes it; the PC takes it over at its next sync. */
+function thumbs(t) {
+  const box = el("span", "row");
+  for (const [label, text, cls] of [["passt", "👍", "fit"], ["passt_nicht", "👎", "nofit"]]) {
+    const b = el("button", `thumb ${cls}` + (myThumb(t) === label ? " on" : ""), text);
+    b.title = label === "passt" ? "Passt" : "Passt nicht";
+    b.onclick = async () => {
+      const next = myThumb(t) === label ? null : label;
+      b.disabled = true;
+      const { error } = await db.from("actions").insert({ publication_number: t.publication_number,
+                                                           action: next || "clear_feedback" });
+      b.disabled = false;
+      if (error) { alert("Die Bewertung hat nicht geklappt. Bitte noch einmal versuchen."); return; }
+      thumbsLocal.set(t.publication_number, next);
+      render();
+      if ($("sheet").classList.contains("open")) openDetail(t);
+    };
+    box.appendChild(b);
+  }
+  return box;
 }
 
 function saveButton(t) {
@@ -380,7 +415,7 @@ function openDetail(t) {
     d.appendChild(ul);
   }
   const row = el("div", "row");
-  row.appendChild(saveButton(t));
+  row.append(saveButton(t), thumbs(t));
   const ted = el("a", "", "Auf TED öffnen ↗");
   ted.href = t.ted_url; ted.target = "_blank"; ted.rel = "noopener";
   row.append(ted, close);
@@ -392,8 +427,12 @@ async function load() {
   const { data, error } = await db.from("tenders").select("*").order("score", { ascending: false }).limit(3000);
   if (error) { $("count").textContent = "Die Liste konnte nicht geladen werden."; return; }
   tenders = data || [];
-  const mine = await db.from("actions").select("publication_number").eq("action", "save").is("picked_up_at", null);
-  for (const a of mine.data || []) pending.add(a.publication_number);
+  const mine = await db.from("actions").select("publication_number, action").is("picked_up_at", null).order("id");
+  for (const a of mine.data || []) {
+    if (a.action === "save") pending.add(a.publication_number);
+    else if (a.action === "passt" || a.action === "passt_nicht") thumbsLocal.set(a.publication_number, a.action);
+    else if (a.action === "clear_feedback") thumbsLocal.set(a.publication_number, null);
+  }
   const last = tenders.reduce((m, t) => (t.uploaded_at > m ? t.uploaded_at : m), "");
   $("updated").textContent = last ? `Stand: ${fmtDate(last)} (aktualisiert bei jedem Abgleich am PC)` : "Noch keine Daten vom PC.";
   render();
@@ -402,6 +441,8 @@ async function load() {
 async function show() {
   const { data } = await db.auth.getSession();
   const loggedIn = !!data.session;
+  const user = data.session && data.session.user;
+  myName = user ? ((user.user_metadata && user.user_metadata.name) || user.email || "") : "";
   $("login").classList.toggle("hidden", loggedIn);
   $("app").classList.toggle("hidden", !loggedIn);
   if (loggedIn) load();
