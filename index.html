@@ -46,13 +46,26 @@
   .seg { display: flex; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
   .seg button { flex: 1; border-radius: 0; background: transparent; padding: 9px 4px; font-size: 14px; }
   .seg button.on { background: linear-gradient(90deg, var(--from), var(--to)); }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip { background: rgba(60, 16, 120, 0.45); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px;
-          font-size: 14px; }
-  .chip.on { background: linear-gradient(90deg, var(--from), var(--to)); border-color: transparent; }
-  .chip.on::before { content: "✓ "; }
-  .filters { display: none; }
-  .filters.open { display: block; }
+  /* the filter cards of Suchen on the PC (2026-11-10, the user: "these two things mandatory in my Handy app") */
+  .fcard { border: 1px solid rgba(205, 165, 255, 0.5); border-radius: 16px; margin: 12px 0; overflow: hidden;
+           background: linear-gradient(135deg, rgba(34, 10, 76, 0.86), rgba(26, 30, 112, 0.80)); }
+  .fhead { display: flex; align-items: center; gap: 10px; padding: 11px 14px; font-weight: 700; font-size: 16px;
+           background: linear-gradient(90deg, #7800B7, #4A1A9A 60%, #2E3399); border-bottom: 1px solid #9C48C7; }
+  .fhead .hint { margin-left: auto; font-weight: 400; font-size: 13px; color: #D6BDEB; }
+  .fhead .pill { margin-left: auto; font-size: 13px; padding: 4px 12px; border-radius: 12px; border: 1px solid #F1B6FF;
+                 background: linear-gradient(90deg, var(--from), var(--to)); }
+  .fbody { padding: 10px 14px 12px; }
+  .ticks { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+  .ticks.three { grid-template-columns: 1fr 1fr 1fr; }
+  .tick { display: flex; align-items: center; gap: 9px; background: transparent; border: 1px solid transparent;
+          border-radius: 12px; padding: 9px 6px; text-align: left; font-weight: 400; font-size: 14.5px; }
+  .tick .box { flex: 0 0 20px; height: 20px; border: 1.5px solid #B79BFF; border-radius: 6px; display: grid;
+               place-items: center; font-size: 13px; font-weight: 800; }
+  .tick svg { flex: 0 0 18px; width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7;
+              stroke-linecap: round; stroke-linejoin: round; }
+  .tick.on { background: linear-gradient(90deg, var(--from), var(--to)); font-weight: 700; }
+  .tick.on .box { background: #fff; color: #8A1FE0; border-color: #fff; }
+  .seg button.on::after { content: " ✓"; }
   .tender { display: flex; gap: 12px; }
   .ring { flex: 0 0 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-weight: 800;
           border: 4px solid var(--green); color: var(--green); }
@@ -108,29 +121,29 @@
     <div class="seg" id="segView"></div>
     <div class="label">Zeitraum</div>
     <div class="seg" id="segPeriod"></div>
-    <div class="row" style="margin-top:12px">
-      <select id="sort" style="flex:1">
-        <option value="score">Sortieren: Score ↓</option>
-        <option value="deadline">Sortieren: Frist ↑</option>
-        <option value="new">Sortieren: Neueste</option>
-      </select>
-      <button id="filterBtn" class="ghost">Filter</button>
-    </div>
+    <select id="sort" style="margin-top:12px">
+      <option value="score">Sortieren: Score ↓</option>
+      <option value="deadline">Sortieren: Frist ↑</option>
+      <option value="new">Sortieren: Neueste</option>
+    </select>
 
-    <div id="filters" class="filters card">
-      <div class="label" style="margin-top:0">Fachgebiet <span class="small">(mehrere möglich)</span></div>
-      <div class="chips" id="chipsFach"></div>
-      <div class="label">Leistungsphase</div>
-      <div class="chips" id="chipsPhase"></div>
-      <div class="label">Frist noch (Wochen)</div>
-      <div class="seg" id="segDeadline"></div>
-      <div class="label">Land</div>
-      <div class="seg" id="segCountry"></div>
-      <div class="row" style="margin-top:14px; justify-content:space-between">
-        <button id="resetBtn" class="ghost">↺ Zurücksetzen</button>
-        <button id="closeFilters">Fertig</button>
-      </div>
+    <div class="fcard">
+      <div class="fhead"><span>Fachgebiet</span><span class="hint">Mehrfachauswahl möglich</span></div>
+      <div class="fbody"><div class="ticks" id="ticksFach"></div></div>
     </div>
+    <div class="fcard">
+      <div class="fhead"><span>Leistungsphase (LPH)</span><span class="pill" id="phasePill">alle Phasen</span></div>
+      <div class="fbody"><div class="ticks three" id="ticksPhase"></div></div>
+    </div>
+    <div class="fcard">
+      <div class="fhead"><span>Frist noch (Wochen)</span></div>
+      <div class="fbody"><div class="seg" id="segDeadline"></div></div>
+    </div>
+    <div class="fcard">
+      <div class="fhead"><span>Land</span></div>
+      <div class="fbody"><div class="seg" id="segCountry"></div></div>
+    </div>
+    <button id="resetBtn" class="ghost" style="width:100%">↺ Filter zurücksetzen</button>
 
     <p id="count" class="muted small"></p>
     <div id="list"></div>
@@ -157,6 +170,16 @@ const FACH = [["tiefbau", "Tiefbau"], ["hochbau", "Hochbau"], ["elektro", "Elekt
 const PHASES = [[7, "LPH 7"], [8, "LPH 8"], [9, "LPH 9"]];
 const DEADLINES = [[0, "alle"], [1, "≥ 1"], [2, "≥ 2"], [3, "≥ 3"], [4, "≥ 4"]];
 const COUNTRIES = [["", "DE + AT"], ["DEU", "DE"], ["AUT", "AT"]];
+const ICONS = {  // 24×24 line drawings, drawn in the text colour
+  tiefbau: "M5 16h14M6 16l1.5-5h9L18 16M7 19.5v-3.5M17 19.5v-3.5M8.5 13.5h.01M15.5 13.5h.01",
+  hochbau: "M4 11l8-7 8 7M6 10v10h12V10M10 20v-6h4v6",
+  elektro: "M13 3L5 14h6l-1 7 8-11h-6z",
+  energie: "M5 19c8 0 14-6 14-14C11 5 5 10 5 17zM5 19l7-7",
+  zaehler: "M4 15a8 8 0 0 1 16 0M12 15l4-5M8 18h8",
+  pipeline: "M12 3c3 4.5 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-6.5 6-11z",
+  engineering: "M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1",
+  architektur: "M12 3l-6 18M12 3l6 18M8.5 14h7M12 3v3",
+};
 const PHASE_FREE = ["zaehler"];  // meter swaps have no LPH: shown in the LPH views too
 const DEFAULTS = { view: "kern", period: 28, fach: [], phases: [], deadline: 0, country: "", sort: "score" };
 let f = loadFilters();
@@ -252,11 +275,23 @@ function seg(id, options, current, set) {
     box.appendChild(b);
   }
 }
-function chips(id, options, chosen, key) {
+function icon(name) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", ICONS[name] || "");
+  svg.appendChild(path);
+  return svg;
+}
+function ticks(id, options, chosen, key) {
   const box = $(id);
   box.replaceChildren();
   for (const [value, label] of options) {
-    const b = el("button", "chip" + (chosen.includes(value) ? " on" : ""), label);
+    const on = chosen.includes(value);
+    const b = el("button", "tick" + (on ? " on" : ""));
+    b.appendChild(el("span", "box", on ? "✓" : ""));
+    if (ICONS[value]) b.appendChild(icon(value));
+    b.appendChild(el("span", "", label));
     b.onclick = () => {
       f[key] = chosen.includes(value) ? chosen.filter((v) => v !== value) : [...chosen, value];
       saveFilters(); render();
@@ -269,11 +304,10 @@ function renderControls() {
   seg("segPeriod", PERIODS, f.period, (v) => { f.period = v; });
   seg("segDeadline", DEADLINES, f.deadline, (v) => { f.deadline = v; });
   seg("segCountry", COUNTRIES, f.country, (v) => { f.country = v; });
-  chips("chipsFach", FACH, f.fach, "fach");
-  chips("chipsPhase", PHASES, f.phases, "phases");
+  ticks("ticksFach", FACH, f.fach, "fach");
+  ticks("ticksPhase", PHASES, f.phases, "phases");
+  $("phasePill").textContent = f.phases.length ? "LPH " + [...f.phases].sort().join(" + ") : "alle Phasen";
   $("sort").value = f.sort;
-  const n = f.fach.length + f.phases.length + (f.deadline ? 1 : 0) + (f.country ? 1 : 0);
-  $("filterBtn").textContent = n ? `Filter (${n})` : "Filter";
 }
 
 function badges(t) {
@@ -382,8 +416,6 @@ $("loginBtn").onclick = async () => {
 $("logoutBtn").onclick = async () => { await db.auth.signOut(); show(); };
 $("q").oninput = render;
 $("sort").onchange = () => { f.sort = $("sort").value; saveFilters(); render(); };
-$("filterBtn").onclick = () => $("filters").classList.toggle("open");
-$("closeFilters").onclick = () => $("filters").classList.remove("open");
 $("resetBtn").onclick = () => { f = { ...DEFAULTS }; saveFilters(); render(); };
 $("sheet").onclick = (e) => { if (e.target.id === "sheet") $("sheet").classList.remove("open"); };
 show();
