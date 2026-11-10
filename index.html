@@ -489,10 +489,16 @@ let loadedAt = 0;
 async function load() {
   loadedAt = Date.now();
   $("refreshBtn").disabled = true;
-  const { data, error } = await db.from("tenders").select("*").order("score", { ascending: false }).limit(3000);
+  // Supabase returns at most 1,000 rows per request (2026-11-10: 418 of 1,418 tenders were missing): in portions
+  const all = [];
+  for (let from = 0; from < 20000; from += 1000) {
+    const { data, error } = await db.from("tenders").select("*").order("publication_number").range(from, from + 999);
+    if (error) { $("refreshBtn").disabled = false; $("count").textContent = "Die Liste konnte nicht geladen werden."; return; }
+    all.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
   $("refreshBtn").disabled = false;
-  if (error) { $("count").textContent = "Die Liste konnte nicht geladen werden."; return; }
-  tenders = data || [];
+  tenders = all;
   // what was tapped here and not yet taken over by the PC: rebuilt from this phone's open actions
   pending.clear(); unsaved.clear(); thumbsLocal.clear();
   const mine = await db.from("actions").select("publication_number, action").is("picked_up_at", null).order("id");
