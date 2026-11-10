@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ausschreibung">
+<meta name="theme-color" content="#140A33">
+<title>EU Ausschreibung</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+  :root {
+    --bg: #0E0322; --card: rgba(34, 12, 78, 0.86); --line: rgba(200, 160, 255, 0.36); --text: #F6F0FF;
+    --muted: #C9B8EA; --faint: #9584C2; --primary: #B22BFF; --from: #C400FF; --to: #5B4BFF; --link: #E77BFF;
+    --green: #2BEA4E; --orange: #F59E0B; --red: #EF4444; --gold: #FFD65A;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh; color: var(--text); font: 15px/1.4 -apple-system, "Segoe UI", system-ui, sans-serif;
+    background: radial-gradient(60% 50% at 0% 40%, #4A0E8C99, transparent 70%),
+                radial-gradient(60% 50% at 100% 50%, #182A9C99, transparent 70%), var(--bg);
+    background-attachment: fixed;
+    padding: env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom));
+  }
+  h1 { font-size: 24px; margin: 18px 0 4px; }
+  .muted { color: var(--muted); } .small { font-size: 13px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin: 12px 0; }
+  input { width: 100%; font: inherit; color: var(--text); background: rgba(255,255,255,0.06);
+          border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; outline: none; }
+  input:focus { border-color: var(--from); }
+  button { font: inherit; font-weight: 600; color: #fff; border: 0; border-radius: 14px; padding: 11px 16px; cursor: pointer;
+           background: linear-gradient(90deg, var(--from), var(--to)); }
+  button.ghost { background: rgba(60, 16, 120, 0.45); border: 1px solid var(--line); }
+  button:disabled { opacity: 0.6; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
+  .kpi b { display: block; font-size: 26px; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .seg button { flex: 1; border-radius: 0; background: transparent; padding: 9px; }
+  .seg button.on { background: linear-gradient(90deg, var(--from), var(--to)); }
+  .tender { display: flex; gap: 12px; }
+  .ring { flex: 0 0 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-weight: 800;
+          border: 4px solid var(--green); color: var(--green); }
+  .title { font-weight: 700; margin: 2px 0; }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0; }
+  .badge { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 10px; border: 1px solid; }
+  .b-gold { color: var(--gold); border-color: #8CFFD65A; background: #4E400C99; }
+  .b-green { color: #7CF29E; border-color: #8C7CF29E; background: #104A2899; }
+  .b-violet { color: #E9DAFF; border-color: #8CE9DAFF; background: #40167899; }
+  .b-mint { color: #8CF5CF; border-color: #8C8CF5CF; background: #0E4A4099; }
+  .days { color: var(--text); background: rgba(150, 50, 230, 0.45); border-color: rgba(215,150,255,.6); }
+  .days.warn { color: #FCA5A5; }
+  .saved { color: #7CF29E; font-weight: 600; }
+  a { color: var(--link); }
+  .sheet { position: fixed; inset: 0; background: rgba(8, 2, 20, 0.7); display: none; align-items: flex-end; z-index: 5; }
+  .sheet.open { display: flex; }
+  .sheet .card { width: 100%; max-height: 86vh; overflow: auto; margin: 0; border-radius: 20px 20px 0 0; }
+  .hidden { display: none !important; }
+  .err { color: #FCA5A5; }
+  ul { padding-left: 18px; margin: 6px 0; }
+</style>
+</head>
+<body>
+  <section id="login" class="hidden">
+    <h1>EU Ausschreibung</h1>
+    <p class="muted">Bitte anmelden.</p>
+    <div class="card">
+      <input id="email" type="email" placeholder="E-Mail" autocomplete="username">
+      <div style="height:10px"></div>
+      <input id="password" type="password" placeholder="Passwort" autocomplete="current-password">
+      <div style="height:12px"></div>
+      <button id="loginBtn" style="width:100%">Anmelden</button>
+      <p id="loginErr" class="err small"></p>
+    </div>
+  </section>
+
+  <section id="app" class="hidden">
+    <div class="row" style="justify-content:space-between">
+      <h1>Übersicht</h1>
+      <button id="logoutBtn" class="ghost small">Abmelden</button>
+    </div>
+    <p id="updated" class="muted small"></p>
+    <div class="kpis">
+      <div class="kpi"><b id="kNew">–</b><span class="muted small">neu in 7 Tagen</span></div>
+      <div class="kpi"><b id="kGold">–</b><span class="muted small">Goldfunde</span></div>
+      <div class="kpi"><b id="kSoon">–</b><span class="muted small">Frist in 7 Tagen</span></div>
+      <div class="kpi"><b id="kSaved">–</b><span class="muted small">gespeichert</span></div>
+    </div>
+    <h1 style="font-size:20px">Suchen</h1>
+    <input id="q" type="search" placeholder="Titel, Auftraggeber, Ort …">
+    <div style="height:10px"></div>
+    <div class="seg"><button id="vKern" class="on">LPH 5–8</button><button id="vAll">Alle Treffer</button></div>
+    <p id="count" class="muted small"></p>
+    <div id="list"></div>
+  </section>
+
+  <div id="sheet" class="sheet"><div class="card" id="detail"></div></div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+"use strict";
+const cfg = window.TB_CONFIG;
+const db = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+const $ = (id) => document.getElementById(id);
+let tenders = [];
+let view = "kern";
+const pending = new Set();  // saved on this phone, not yet taken over by the PC
+
+/** An element with plain text only (texts from TED are never treated as HTML). */
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined && text !== null) e.textContent = text;
+  return e;
+}
+
+function daysLeft(deadline) {
+  if (!deadline) return null;
+  const berlin = (d) => new Date(d.toLocaleString("en-US", { timeZone: "Europe/Berlin" }));
+  const due = berlin(new Date(deadline)), now = berlin(new Date());
+  const start = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return Math.round((start(due) - start(now)) / 86400000);
+}
+
+function countdown(deadline) {
+  const d = daysLeft(deadline);
+  if (d === null) return null;
+  if (d < 0) return { text: "abgelaufen", warn: true };
+  if (d === 0) return { text: "heute", warn: true };
+  if (d === 1) return { text: "morgen", warn: true };
+  return { text: `noch ${d} Tage`, warn: d <= 3 };
+}
+
+function fmtDate(value) {
+  if (!value) return "nicht angegeben";
+  return new Date(value).toLocaleString("de-DE", { timeZone: "Europe/Berlin", weekday: "short", day: "2-digit",
+    month: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+function ringColor(score) { return score >= 70 ? "var(--green)" : score >= 40 ? "var(--orange)" : "var(--red)"; }
+
+function isSaved(t) { return t.status !== "new" || pending.has(t.publication_number); }
+
+function inView(t) {
+  return view === "all" || t.phase_group === "kern" || t.bereich_key === "zaehler";
+}
+
+function matches(t, words) {
+  const hay = `${t.title || ""} ${t.buyer || ""} ${t.description || ""}`.toLowerCase();
+  return words.every((w) => hay.includes(w));
+}
+
+function render() {
+  const words = $("q").value.toLowerCase().split(/\s+/).filter(Boolean);
+  const shown = tenders.filter((t) => inView(t) && matches(t, words));
+  $("count").textContent = `${shown.length} Ausschreibungen`;
+  const list = $("list");
+  list.replaceChildren();
+  for (const t of shown.slice(0, 200)) list.appendChild(card(t));
+  const weekAgo = Date.now() - 7 * 86400000;
+  $("kNew").textContent = tenders.filter((t) => t.published && new Date(t.published) >= weekAgo).length;
+  $("kGold").textContent = tenders.filter((t) => t.gold).length;
+  $("kSoon").textContent = tenders.filter((t) => { const d = daysLeft(t.deadline); return d !== null && d >= 0 && d <= 7; }).length;
+  $("kSaved").textContent = tenders.filter(isSaved).length;
+}
+
+function badges(t) {
+  const box = el("div", "badges");
+  if (t.gold) box.appendChild(el("span", "badge b-gold", "🏆 Goldfund"));
+  if (t.phase_label) box.appendChild(el("span", "badge b-green", t.phase_label));
+  if (t.bereich_label) box.appendChild(el("span", "badge b-mint", t.bereich_label));
+  if (t.leistung_label) box.appendChild(el("span", "badge b-violet", t.leistung_label));
+  const c = countdown(t.deadline);
+  if (c) box.appendChild(el("span", "badge days" + (c.warn ? " warn" : ""), c.text));
+  return box;
+}
+
+function card(t) {
+  const c = el("div", "card tender");
+  const ring = el("div", "ring", String(t.score ?? 0));
+  ring.style.borderColor = ring.style.color = ringColor(t.score || 0);
+  const body = el("div");
+  body.style.minWidth = "0";
+  body.append(badges(t), el("div", "title", t.title || "(ohne Titel)"), el("div", "muted small", t.buyer || ""));
+  body.appendChild(el("div", "small", `Frist ${fmtDate(t.deadline)}`));
+  const row = el("div", "row");
+  row.style.marginTop = "8px";
+  row.appendChild(saveButton(t));
+  const more = el("button", "ghost", "Details");
+  more.onclick = () => openDetail(t);
+  row.appendChild(more);
+  body.appendChild(row);
+  c.append(ring, body);
+  return c;
+}
+
+function saveButton(t) {
+  if (isSaved(t)) {
+    return el("span", "saved", pending.has(t.publication_number) && t.status === "new"
+      ? "✓ Gespeichert – erscheint am PC unter „2 Unterlagen“ nach dem nächsten Abgleich"
+      : "✓ Gespeichert");
+  }
+  const b = el("button", "", "☆ Speichern");
+  b.onclick = async () => {
+    b.disabled = true;
+    const { error } = await db.from("actions").insert({ publication_number: t.publication_number, action: "save" });
+    if (error) { b.disabled = false; alert("Speichern hat nicht geklappt. Bitte noch einmal versuchen."); return; }
+    pending.add(t.publication_number);
+    render();
+    if ($("sheet").classList.contains("open")) openDetail(t);
+  };
+  return b;
+}
+
+function openDetail(t) {
+  const d = $("detail");
+  d.replaceChildren();
+  const close = el("button", "ghost", "Schließen");
+  close.onclick = () => $("sheet").classList.remove("open");
+  d.append(badges(t), el("h1", "", t.title || "(ohne Titel)"), el("div", "muted", `${t.buyer || ""} · ${t.country === "AUT" ? "Österreich" : "Deutschland"}`));
+  const facts = el("div", "small");
+  facts.style.margin = "10px 0";
+  for (const line of [`Frist: ${fmtDate(t.deadline)}`, `Laufzeit: ${t.duration_text || "nicht angegeben"}`,
+                      `Wert: ${t.value_text || "nicht angegeben"}`, `Score: ${t.score ?? 0}`]) facts.appendChild(el("div", "", line));
+  d.appendChild(facts);
+  if (t.description) d.appendChild(el("p", "small", t.description));
+  if ((t.reasons || []).length) {
+    d.appendChild(el("div", "muted small", "Warum dieser Score?"));
+    const ul = el("ul", "small");
+    for (const r of t.reasons) ul.appendChild(el("li", "", `${r.points > 0 ? "+" : ""}${r.points} ${r.text}`));
+    d.appendChild(ul);
+  }
+  const row = el("div", "row");
+  row.appendChild(saveButton(t));
+  const ted = el("a", "", "Auf TED öffnen ↗");
+  ted.href = t.ted_url; ted.target = "_blank"; ted.rel = "noopener";
+  row.append(ted, close);
+  d.appendChild(row);
+  $("sheet").classList.add("open");
+}
+
+async function load() {
+  const { data, error } = await db.from("tenders").select("*").order("score", { ascending: false }).limit(3000);
+  if (error) { $("count").textContent = "Die Liste konnte nicht geladen werden."; return; }
+  tenders = data || [];
+  const mine = await db.from("actions").select("publication_number").eq("action", "save").is("picked_up_at", null);
+  for (const a of mine.data || []) pending.add(a.publication_number);
+  const last = tenders.reduce((m, t) => (t.uploaded_at > m ? t.uploaded_at : m), "");
+  $("updated").textContent = last ? `Stand: ${fmtDate(last)} (aktualisiert bei jedem Abgleich am PC)` : "Noch keine Daten vom PC.";
+  render();
+}
+
+async function show() {
+  const { data } = await db.auth.getSession();
+  const loggedIn = !!data.session;
+  $("login").classList.toggle("hidden", loggedIn);
+  $("app").classList.toggle("hidden", !loggedIn);
+  if (loggedIn) load();
+}
+
+$("loginBtn").onclick = async () => {
+  $("loginErr").textContent = "";
+  const { error } = await db.auth.signInWithPassword({ email: $("email").value.trim(), password: $("password").value });
+  if (error) { $("loginErr").textContent = "Anmeldung fehlgeschlagen – E-Mail oder Passwort prüfen."; return; }
+  show();
+};
+$("logoutBtn").onclick = async () => { await db.auth.signOut(); show(); };
+$("q").oninput = render;
+$("vKern").onclick = () => { view = "kern"; $("vKern").classList.add("on"); $("vAll").classList.remove("on"); render(); };
+$("vAll").onclick = () => { view = "all"; $("vAll").classList.add("on"); $("vKern").classList.remove("on"); render(); };
+$("sheet").onclick = (e) => { if (e.target.id === "sheet") $("sheet").classList.remove("open"); };
+show();
+</script>
+</body>
+</html>
