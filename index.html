@@ -372,6 +372,21 @@ const cfg = window.TB_CONFIG;
 const db = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey,
   { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } });
 const $ = (id) => document.getElementById(id);
+// Always the newest page (2026-11-11, the user: "the changes are not visible on my iPhone" – GitHub lets a browser keep a
+// page for 10 minutes and a home-screen app holds its copy longer): the page compares its version with version.json,
+// never taken from a cache, and loads a newer one under a new address the phone has no copy of.
+const APP_VERSION = "2026-11-11b";
+async function checkUpdate() {
+  try {
+    const r = await fetch("version.json?t=" + Date.now(), { cache: "no-store" });
+    const v = (await r.json()).v;
+    if (v && v !== APP_VERSION && sessionStorage.getItem("tb_reloaded") !== v) {
+      sessionStorage.setItem("tb_reloaded", v);
+      location.replace(location.pathname.replace(/[^/]*$/, "") + "index.html?v=" + encodeURIComponent(v));
+    }
+  } catch (e) { /* offline: keep the page */ }
+}
+checkUpdate();
 let tenders = [];
 const pending = new Set();  // saved on this phone, not yet taken over by the PC
 const unsaved = new Set();  // saving undone on this phone ("Rückgängig"), not yet taken over by the PC
@@ -1029,6 +1044,7 @@ db.auth.onAuthStateChange((event) => { if (event === "SIGNED_OUT") show(); });
 // it also reloads by itself when it comes back to the front after a while
 $("refreshBtn").onclick = () => load();
 document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") checkUpdate();
   if (document.visibilityState === "visible" && !$("app").classList.contains("hidden") && Date.now() - loadedAt > 30000) load();
 });
 $("q").oninput = render;
