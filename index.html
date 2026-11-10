@@ -193,6 +193,61 @@
   .thumb.fit.on { background: #16A34A; border-color: #16A34A; }
   .thumb.nofit.on { background: #EA580C; border-color: #EA580C; }
   ul { padding-left: 18px; margin: 6px 0; }
+  /* the details as a page of their own (2026-11-11, the user's picture: "improve the Ausschreibung Beschreibung") */
+  .page { position: fixed; inset: 0; z-index: 4; overflow-y: auto; -webkit-overflow-scrolling: touch;
+          background: radial-gradient(80% 40% at 0% 0%, #3A2AB0AA, transparent 70%),
+                      radial-gradient(70% 45% at 100% 40%, #5B1FB088, transparent 70%), var(--bg);
+          padding: calc(10px + env(safe-area-inset-top)) 16px calc(150px + env(safe-area-inset-bottom)); }
+  .pbar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .pbar h2 { flex: 1; text-align: center; font-size: 19px; margin: 0; }
+  .sq { width: 46px; height: 46px; padding: 0; border-radius: 14px; display: grid; place-items: center;
+        background: rgba(40, 32, 110, 0.6); border: 1px solid var(--line); }
+  .sq.on svg.i { fill: #E9DAFF; }
+  .hero { position: relative; overflow: hidden; border-radius: 22px; padding: 16px; border: 1px solid rgba(170,150,255,.4);
+          background: linear-gradient(150deg, rgba(40, 28, 110, .92), rgba(30, 22, 86, .9) 55%, rgba(80, 26, 140, .85)); }
+  .hero::after { content: ""; position: absolute; right: -60px; top: 150px; width: 260px; height: 110px; pointer-events: none;
+                 border-top: 3px solid rgba(214,120,255,.8); border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+                 transform: rotate(-12deg); filter: drop-shadow(0 0 8px #C04BFF); opacity: .7; }
+  .hero h1 { font-size: 23px; line-height: 1.25; margin: 10px 0 10px; position: relative; z-index: 1; }
+  .facts { display: flex; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line);
+           position: relative; z-index: 1; }
+  .fact { flex: 1; min-width: 0; padding: 0 8px; border-right: 1px solid var(--line); }
+  .fact:first-child { padding-left: 0; }
+  .fact .k { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13.5px; }
+  .fact .k svg.i { width: 18px; height: 18px; }
+  .fact .v { font-weight: 700; font-size: 15px; margin-top: 4px; white-space: pre-line; line-height: 1.3; }
+  .facts .sring { margin-left: 12px; }
+  .tabs { display: flex; gap: 4px; padding: 4px; margin: 16px 0 12px; border-radius: 20px; border: 1px solid var(--line);
+          background: rgba(30, 24, 82, .6); }
+  .tabs button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 11px 4px;
+                 border-radius: 16px; background: transparent; font-size: 15px; font-weight: 600; }
+  .tabs button.on { background: linear-gradient(90deg, var(--from), var(--to)); }
+  .tabs button svg.i { width: 19px; height: 19px; }
+  .panel { border-radius: 22px; padding: 16px; border: 1px solid var(--line); background: rgba(30, 24, 82, .72); }
+  .panel h3 { display: flex; align-items: center; gap: 10px; font-size: 19px; margin: 0 0 10px; }
+  .desc { font-size: 15.5px; line-height: 1.5; color: #E6E2FF; white-space: pre-line; }
+  .desc.clamp { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+  .more2 { width: 100%; margin-top: 12px; background: rgba(90, 50, 200, .3); border: 1px solid #7C60E0; color: #F0B8FF; }
+  .why { margin-top: 14px; border-radius: 18px; border: 1px solid var(--line); background: rgba(20, 16, 60, .5); overflow: hidden; }
+  .why .wh { display: flex; align-items: center; gap: 10px; padding: 12px 14px; font-weight: 700; font-size: 16.5px;
+             border-bottom: 1px solid var(--line); }
+  .why ul { list-style: none; padding: 8px 14px 12px; margin: 0; }
+  .why li { display: flex; gap: 10px; align-items: flex-start; padding: 5px 0; font-size: 15px; }
+  .why li .ck { flex: 0 0 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px;
+                font-weight: 900; background: #22C55E; color: #fff; margin-top: 1px; }
+  .why li .ck.minus { background: #E0526A; }
+  .why li b { margin-right: 4px; }
+  .pfoot { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+           background: linear-gradient(180deg, transparent, rgba(11, 10, 42, .96) 30%); }
+  .pfoot .r1 { display: flex; gap: 12px; align-items: center; }
+  .pfoot .r1 > :first-child { flex: 1; }
+  .pfoot .bigsave { width: 100%; padding: 16px; font-size: 19px; border-radius: 20px; display: flex; align-items: center;
+                    justify-content: center; gap: 10px; }
+  .pfoot .thumb { width: 64px; height: 58px; font-size: 26px; border-radius: 18px; padding: 0;
+                  background: rgba(20, 16, 60, .7); border: 1px solid #5A50B0; }
+  .pfoot .r2 { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+  .pfoot .r2 a { font-size: 17px; font-weight: 600; }
+  .pfoot .r2 button { padding: 12px 34px; border-radius: 18px; }
   .sheet { position: fixed; inset: 0; background: rgba(6, 4, 24, 0.7); display: none; align-items: flex-end; z-index: 5; }
   .sheet.open { display: flex; }
   .sheet .card { width: 100%; max-height: 86vh; overflow: auto; margin: 0; border-radius: 22px 22px 0 0; }
@@ -275,6 +330,7 @@
     <div id="list"></div>
   </section>
 
+  <div id="page" class="page hidden"></div>
   <div id="sheet" class="sheet"><div class="card" id="detail"></div></div>
   <div id="toast" class="toast hidden"><span id="toastText"></span><button id="toastUndo" class="ghost">↶ Rückgängig</button></div>
 
@@ -327,6 +383,14 @@ const UI_ICONS = {
   mic: "M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21",
   sliders: "M4 7h10M18 7h2M4 17h4M12 17h8M14 4v6M8 14v6",
   chevUp: "M6 15l6-6 6 6",
+  back: "M15 5l-7 7 7 7M8 12h12",
+  share: "M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6",
+  pin: "M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+  clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2",
+  doc: "M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h6",
+  bars: "M5 20V11M10 20V5M15 20v-7M20 20V9",
+  clip: "M20 11l-8.5 8.5a5 5 0 0 1-7-7L13 4a3.3 3.3 0 0 1 4.7 4.7L9.2 17.2a1.7 1.7 0 0 1-2.4-2.4L15 6.6",
+  sparkle: "M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z",
   trophy: "M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4",
   hardhat: "M4 17h16M6 17a6 6 0 0 1 12 0M10 11V8h4v3",
   building: "M5 21V4h10v17M15 9h4v12M8 8h1M11 8h1M8 12h1M11 12h1M8 16h1M11 16h1M3 21h18",
@@ -623,7 +687,7 @@ function thumbs(t) {
       if (error) { alert("Die Bewertung hat nicht geklappt. Bitte noch einmal versuchen."); return; }
       thumbsLocal.set(t.publication_number, next);
       render();
-      if ($("sheet").classList.contains("open")) openDetail(t);
+      if (detailOf === t.publication_number) openDetail(t);
     };
     box.appendChild(b);
   }
@@ -638,7 +702,7 @@ async function act(t, action) {
 
 function refreshAfter(t) {
   render();
-  if ($("sheet").classList.contains("open")) openDetail(t);
+  if (detailOf === t.publication_number) openDetail(t);
 }
 
 /** Speichern; once saved "✓ Gespeichert" with "Rückgängig" (2026-11-10, the user: "if we do it by mistake we want to
@@ -688,34 +752,144 @@ function toast(text, t) {
   toastTimer = setTimeout(() => $("toast").classList.add("hidden"), 6000);
 }
 
+let detailOf = null;  // the tender whose details are open
+let detailTab = "desc";
+
+/** The details as a page of their own (2026-11-11, the user's picture). */
 function openDetail(t) {
-  const d = $("detail");
-  d.replaceChildren();
-  const close = el("button", "ghost", "Schließen");
-  close.onclick = () => $("sheet").classList.remove("open");
-  d.append(badges(t), el("h1", "", t.title || "(ohne Titel)"),
-           el("div", "muted", `${t.buyer || ""} · ${t.country === "AUT" ? "Österreich" : "Deutschland"}`));
-  const facts = el("div", "small");
-  facts.style.margin = "10px 0";
-  for (const line of [`Frist: ${fmtDate(t.deadline)}`, `Laufzeit: ${t.duration_text || "nicht angegeben"}`,
-                      `Wert: ${t.value_text || "nicht angegeben"}`, `Score: ${t.score ?? 0}`]) {
-    facts.appendChild(el("div", "", line));
+  detailOf = t.publication_number;
+  const p = $("page");
+  p.replaceChildren();
+  const bar = el("div", "pbar");
+  const back = el("button", "sq"); back.appendChild(uiIcon("back")); back.title = "Zurück"; back.onclick = closeDetail;
+  const mark = el("button", "sq" + (isSaved(t) ? " on" : "")); mark.appendChild(uiIcon("bookmark"));
+  mark.title = isSaved(t) ? "Gespeichert" : "Speichern";
+  mark.onclick = async () => { if (!isSaved(t)) await doSave(t); else if (status(t) === "saved") await undoSave(t); };
+  const share = el("button", "sq"); share.appendChild(uiIcon("share")); share.title = "Teilen";
+  share.onclick = () => {
+    if (navigator.share) navigator.share({ title: t.title || "Ausschreibung", url: t.ted_url }).catch(() => {});
+    else window.open(t.ted_url, "_blank", "noopener");
+  };
+  bar.append(back, el("h2", "", "Ausschreibungsdetails"), mark, share);
+  p.appendChild(bar);
+
+  const hero = el("div", "hero");
+  hero.append(badges(t), el("h1", "", t.title || "(ohne Titel)"));
+  const buyer = el("div", "meta", t.buyer || ""); buyer.prepend(uiIcon("building"));
+  const land = el("div", "meta", t.country === "AUT" ? "Österreich" : "Deutschland"); land.prepend(uiIcon("pin"));
+  hero.append(buyer, land);
+  const facts = el("div", "facts");
+  const shown = (v) => (v && v !== "nicht angegeben" ? v : "–");
+  const dueText = t.deadline ? new Date(t.deadline).toLocaleString("de-DE", { timeZone: "Europe/Berlin", weekday: "short",
+    day: "2-digit", month: "2-digit" }) + "\n" + new Date(t.deadline).toLocaleTimeString("de-DE", { timeZone: "Europe/Berlin",
+    hour: "2-digit", minute: "2-digit" }) + " Uhr" : "–";
+  for (const [icon, k, v] of [["calendar", "Frist", dueText],
+                              ["clock", "Laufzeit", shown(t.duration_text)], ["layers", "Wert", shown(t.value_text)]]) {
+    const f = el("div", "fact");
+    const key = el("div", "k", k); key.prepend(uiIcon(icon));
+    f.append(key, el("div", "v", v));
+    facts.appendChild(f);
   }
-  d.appendChild(facts);
-  if (t.description) d.appendChild(el("p", "small", t.description));
-  if ((t.reasons || []).length) {
-    d.appendChild(el("div", "muted small", "Warum dieser Score?"));
-    const ul = el("ul", "small");
-    for (const r of t.reasons) ul.appendChild(el("li", "", `${r.points > 0 ? "+" : ""}${r.points} ${r.text}`));
-    d.appendChild(ul);
+  facts.appendChild(scoreRing(t));
+  hero.appendChild(facts);
+  p.appendChild(hero);
+
+  const tabs = el("div", "tabs");
+  for (const [key, label, icon] of [["desc", "Beschreibung", "doc"], ["rating", "Bewertung", "bars"], ["docs", "Dokumente", "clip"]]) {
+    const b = el("button", key === detailTab ? "on" : "", label);
+    b.prepend(uiIcon(icon));
+    b.onclick = () => { detailTab = key; openDetail(t); };
+    tabs.appendChild(b);
   }
-  const row = el("div", "row");
-  row.append(saveButton(t), thumbs(t));
-  const ted = el("a", "", "Auf TED öffnen ↗");
-  ted.href = t.ted_url; ted.target = "_blank"; ted.rel = "noopener";
-  row.append(ted, close);
-  d.appendChild(row);
-  $("sheet").classList.add("open");
+  p.appendChild(tabs);
+  p.appendChild(detailTab === "rating" ? ratingPanel(t) : detailTab === "docs" ? docsPanel(t) : descPanel(t));
+
+  const foot = el("div", "pfoot");
+  const r1 = el("div", "r1");
+  const save = saveButton(t);
+  if (save.tagName === "BUTTON") {
+    save.className = "bigsave";
+    save.replaceChildren(uiIcon("star"), document.createTextNode("Speichern"));
+  }
+  r1.appendChild(save);
+  for (const b of [...thumbs(t).children]) r1.appendChild(b);
+  const r2 = el("div", "r2");
+  const ted = el("a", "", "Auf TED öffnen ↗"); ted.href = t.ted_url; ted.target = "_blank"; ted.rel = "noopener";
+  const close = el("button", "ghost", "Schließen"); close.onclick = closeDetail;
+  r2.append(ted, close);
+  foot.append(r1, r2);
+  p.appendChild(foot);
+  p.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeDetail() {
+  detailOf = null;
+  $("page").classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function whyBox(t) {
+  const box = el("div", "why");
+  const head = el("div", "wh", "Warum dieser Score?"); head.prepend(uiIcon("sparkle"));
+  box.appendChild(head);
+  const ul = el("ul");
+  for (const r of t.reasons || []) {
+    const li = el("li");
+    li.appendChild(el("span", "ck" + (r.points < 0 ? " minus" : ""), r.points < 0 ? "–" : "✓"));
+    const text = el("span");
+    text.append(el("b", "", `${r.points > 0 ? "+" : ""}${r.points}`), document.createTextNode(r.text));
+    li.appendChild(text);
+    ul.appendChild(li);
+  }
+  if (!ul.children.length) ul.appendChild(el("li", "muted", "Keine Angaben."));
+  box.appendChild(ul);
+  return box;
+}
+
+function descPanel(t) {
+  const panel = el("div", "panel");
+  const h = el("h3", "", "Leistungsbeschreibung"); h.prepend(uiIcon("doc"));
+  panel.appendChild(h);
+  const text = (t.description || "").trim();
+  const d = el("div", "desc clamp", text || "In der Bekanntmachung steht keine Beschreibung – bitte auf TED nachsehen.");
+  panel.appendChild(d);
+  if (text.length > 260) {
+    const more = el("button", "more2", "Vollständige Beschreibung anzeigen ⌄");
+    more.onclick = () => {
+      const clamped = d.classList.toggle("clamp");
+      more.textContent = clamped ? "Vollständige Beschreibung anzeigen ⌄" : "Weniger anzeigen ⌃";
+    };
+    panel.appendChild(more);
+    if (text.length >= 1490) panel.appendChild(el("p", "muted small", "Gekürzt – der ganze Text steht auf TED."));
+  }
+  panel.appendChild(whyBox(t));
+  return panel;
+}
+
+function ratingPanel(t) {
+  const panel = el("div", "panel");
+  const h = el("h3", "", "Bewertung"); h.prepend(uiIcon("bars"));
+  panel.appendChild(h);
+  const mine = myThumb(t);
+  panel.appendChild(el("p", "", mine === "passt" ? "Ihre Bewertung: 👍 Passt" : mine === "passt_nicht" ? "Ihre Bewertung: 👎 Passt nicht"
+    : "Noch nicht bewertet – unten mit 👍 oder 👎."));
+  for (const [who, label] of Object.entries(t.feedback || {}).filter(([who]) => who !== myName)) {
+    panel.appendChild(el("p", "muted small", `${who}: ${label === "passt" ? "👍" : "👎"}`));
+  }
+  panel.appendChild(whyBox(t));
+  return panel;
+}
+
+function docsPanel(t) {
+  const panel = el("div", "panel");
+  const h = el("h3", "", "Dokumente"); h.prepend(uiIcon("clip"));
+  panel.appendChild(h);
+  panel.appendChild(el("p", "desc", "Die Vergabeunterlagen holt der PC („Unterlagen holen“ unter „2 Unterlagen“). "
+    + "Hier geht es zur Bekanntmachung mit allen Links:"));
+  const a = el("a", "", "Bekanntmachung auf TED öffnen ↗"); a.href = t.ted_url; a.target = "_blank"; a.rel = "noopener";
+  panel.appendChild(a);
+  return panel;
 }
 
 let loadedAt = 0;
