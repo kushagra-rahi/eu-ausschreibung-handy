@@ -152,6 +152,7 @@
     </div>
     <button id="resetBtn" class="ghost" style="width:100%">↺ Filter zurücksetzen</button>
 
+    <div class="seg" id="segList" style="margin-top:14px"></div>
     <p id="count" class="muted small"></p>
     <div id="list"></div>
   </section>
@@ -167,6 +168,8 @@ const db = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
 const $ = (id) => document.getElementById(id);
 let tenders = [];
 const pending = new Set();  // saved on this phone, not yet taken over by the PC
+const unsaved = new Set();  // saving undone on this phone ("Rückgängig"), not yet taken over by the PC
+let listMode = "results";  // "results" or "saved" (the switch above the list)
 const thumbsLocal = new Map();  // 👍 / 👎 tapped on this phone, not yet taken over: publication number → label or null
 let myName = "";  // as the PC knows this person: the login's name, else its e-mail
 
@@ -227,7 +230,13 @@ function fmtDate(value) {
     month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 function ringColor(score) { return score >= 70 ? "var(--green)" : score >= 40 ? "var(--orange)" : "var(--red)"; }
-function isSaved(t) { return t.status !== "new" || pending.has(t.publication_number); }
+/** The status as this phone knows it: the PC's, changed by what was tapped here and not yet taken over. */
+function status(t) {
+  if (unsaved.has(t.publication_number)) return "new";
+  if (pending.has(t.publication_number)) return "saved";
+  return t.status;
+}
+function isSaved(t) { return status(t) !== "new"; }
 
 /** The PC's rules: view, period (German date), Fachgebiet, phases, deadline, country, search text. */
 function passes(t, words) {
@@ -262,8 +271,13 @@ function sorted(list) {
 function render() {
   const words = $("q").value.toLowerCase().split(/\s+/).filter(Boolean);
   // as on the PC, tenders already saved or in work are no search results (saved here just now: still shown)
-  const shown = sorted(tenders.filter((t) => (t.status === "new") && passes(t, words)));
-  $("count").textContent = `${shown.length} Ausschreibungen`;
+  const savedList = tenders.filter(isSaved);
+  seg("segList", [["results", "Treffer"], ["saved", `Gespeichert (${savedList.length})`]], listMode, (v) => { listMode = v; });
+  const shown = listMode === "saved" ? sorted(savedList)
+    : sorted(tenders.filter((t) => (t.status === "new" || unsaved.has(t.publication_number)) && passes(t, words)));
+  $("count").textContent = listMode === "saved"
+    ? (shown.length ? `${shown.length} gespeichert – „Rückgängig“ nimmt eine Speicherung zurück` : "Noch nichts gespeichert.")
+    : `${shown.length} Ausschreibungen`;
   const list = $("list");
   list.replaceChildren();
   for (const t of shown.slice(0, 200)) list.appendChild(card(t));
@@ -271,7 +285,7 @@ function render() {
   $("kNew").textContent = tenders.filter((t) => t.published && new Date(t.published) >= weekAgo).length;
   $("kGold").textContent = tenders.filter((t) => t.gold && t.status === "new").length;
   $("kSoon").textContent = tenders.filter((t) => { const d = daysLeft(t.deadline); return d !== null && d >= 0 && d <= 7; }).length;
-  $("kSaved").textContent = tenders.filter(isSaved).length;
+  $("kSaved").textContent = savedList.length;
   renderControls();
 }
 
@@ -375,20 +389,44 @@ function thumbs(t) {
   return box;
 }
 
+async function act(t, action) {
+  const { error } = await db.from("actions").insert({ publication_number: t.publication_number, action });
+  if (error) { alert("Das hat nicht geklappt. Bitte noch einmal versuchen."); return false; }
+  return true;
+}
+
+function refreshAfter(t) {
+  render();
+  if ($("sheet").classList.contains("open")) openDetail(t);
+}
+
+/** Speichern; once saved "✓ Gespeichert" with "Rückgängig" (2026-11-10, the user: "if we do it by mistake we want to
+ * undo it") – the PC takes it back at its next sync, unless it is already worked on there. */
 function saveButton(t) {
+  const pn = t.publication_number;
   if (isSaved(t)) {
-    return el("span", "saved", pending.has(t.publication_number) && t.status === "new"
-      ? "✓ Gespeichert – erscheint am PC unter „2 Unterlagen“ nach dem nächsten Abgleich"
-      : "✓ Gespeichert");
+    if (status(t) !== "saved") return el("span", "saved", "✓ In Arbeit am PC");
+    const box = el("span", "row");
+    box.appendChild(el("span", "saved", pending.has(pn) && t.status === "new"
+      ? "✓ Gespeichert – erscheint am PC unter „2 Unterlagen“ nach dem nächsten Abgleich" : "✓ Gespeichert"));
+    const undo = el("button", "ghost", "↶ Rückgängig");
+    undo.onclick = async () => {
+      undo.disabled = true;
+      if (!(await act(t, "unsave"))) { undo.disabled = false; return; }
+      pending.delete(pn);
+      if (t.status !== "new") unsaved.add(pn);
+      refreshAfter(t);
+    };
+    box.appendChild(undo);
+    return box;
   }
   const b = el("button", "", "☆ Speichern");
   b.onclick = async () => {
     b.disabled = true;
-    const { error } = await db.from("actions").insert({ publication_number: t.publication_number, action: "save" });
-    if (error) { b.disabled = false; alert("Speichern hat nicht geklappt. Bitte noch einmal versuchen."); return; }
-    pending.add(t.publication_number);
-    render();
-    if ($("sheet").classList.contains("open")) openDetail(t);
+    if (!(await act(t, "save"))) { b.disabled = false; return; }
+    unsaved.delete(pn);
+    if (t.status === "new") pending.add(pn);
+    refreshAfter(t);
   };
   return b;
 }
@@ -429,7 +467,9 @@ async function load() {
   tenders = data || [];
   const mine = await db.from("actions").select("publication_number, action").is("picked_up_at", null).order("id");
   for (const a of mine.data || []) {
-    if (a.action === "save") pending.add(a.publication_number);
+    const t = tenders.find((x) => x.publication_number === a.publication_number);
+    if (a.action === "save") { unsaved.delete(a.publication_number); if (!t || t.status === "new") pending.add(a.publication_number); }
+    else if (a.action === "unsave") { pending.delete(a.publication_number); if (t && t.status !== "new") unsaved.add(a.publication_number); }
     else if (a.action === "passt" || a.action === "passt_nicht") thumbsLocal.set(a.publication_number, a.action);
     else if (a.action === "clear_feedback") thumbsLocal.set(a.publication_number, null);
   }
