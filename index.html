@@ -53,7 +53,7 @@
   .logo { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; flex: 0 0 auto;
           background: linear-gradient(135deg, #3E7BFF, #3B3AD8); box-shadow: 0 6px 20px #3B5BFF55; }
   .logo svg.i { width: 30px; height: 30px; color: #fff; }
-  .top h1 { font-size: 27px; margin: 0; line-height: 1.1; }
+  .top h1 { font-size: 24px; margin: 0; line-height: 1.1; white-space: nowrap; }
   .top .hello { color: var(--muted); font-size: 15px; margin-top: 3px; }
   .top .hello b { color: var(--text); }
   .round { width: 48px; height: 48px; border-radius: 50%; padding: 0; display: grid; place-items: center; position: relative;
@@ -102,34 +102,37 @@
   .filters.closed .chev { transform: rotate(180deg); }
   .filters.closed .fbody { display: none; }
   .filters.closed .fhead { border-bottom: 0; }
-  .fbody { padding: 6px 16px 16px; }
-  .flabel { display: flex; align-items: center; justify-content: space-between; font-size: 16px; font-weight: 700;
-            margin: 14px 0 8px; }
+  .fbody { padding: 4px 14px 14px; }
+  /* compact (2026-11-11, the user: "optimise its length, it is very long"): labels beside their choices, chips */
+  .frow { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .frow > .flabel { margin: 0; flex: 0 0 78px; font-size: 14px; white-space: nowrap; }
+  .frow > .seg, .frow > .ticks, .frow > select { flex: 1; min-width: 0; }
+  .flabel { display: flex; align-items: center; justify-content: space-between; font-size: 15px; font-weight: 700;
+            margin: 10px 0 6px; }
   .flabel .hint { font-weight: 400; font-size: 13.5px; color: var(--muted); }
   .flabel .pill { font-size: 13px; font-weight: 600; padding: 3px 11px; border-radius: 12px;
                   background: linear-gradient(90deg, var(--from), var(--to)); }
   .seg { display: flex; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; padding: 3px; gap: 3px;
          background: rgba(255,255,255,0.03); }
-  .seg button { flex: 1; border-radius: 15px; background: transparent; padding: 10px 4px; font-size: 15px; font-weight: 500; }
+  .seg button { flex: 1; border-radius: 14px; background: transparent; padding: 8px 2px; font-size: 14px; font-weight: 500;
+                white-space: nowrap; }
   .seg button.on { background: linear-gradient(90deg, var(--from), var(--to)); font-weight: 700;
                    box-shadow: 0 4px 14px #8A3BFF55; }
   .seg button.on::after { content: " ✓"; }
-  .sortrow { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
-  .sortrow .flabel { margin: 0; flex: 0 0 auto; }
-  .sortrow select { flex: 1; padding: 12px 40px 12px 16px;
+  .sortrow select { padding: 9px 36px 9px 14px; border-radius: 14px; font-size: 14.5px;
     background: rgba(255,255,255,0.05) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F4F2FF' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center / 18px; }
-  .ticks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .ticks.three { grid-template-columns: 1fr 1fr 1fr; }
-  .tick { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--line);
-          border-radius: 16px; padding: 12px; text-align: left; font-weight: 500; font-size: 15px; min-height: 54px; }
+  .ticks { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tick { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+          border-radius: 14px; padding: 7px 11px; text-align: left; font-weight: 500; font-size: 14px; }
   .tick .box { flex: 0 0 22px; height: 22px; border: 1.6px solid #B7AEFF; border-radius: 6px; display: grid;
                place-items: center; font-size: 14px; font-weight: 800; }
-  .tick svg { flex: 0 0 22px; width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7;
+  .tick .box { display: none; }
+  .tick svg { flex: 0 0 18px; width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7;
               stroke-linecap: round; stroke-linejoin: round; }
-  .tick.on { background: rgba(110, 60, 230, 0.28); border-color: #A58BFF; box-shadow: inset 0 0 0 1px #A58BFF; }
+  .tick.on { background: linear-gradient(90deg, var(--from), var(--to)); border-color: transparent; font-weight: 700; }
   .tick.on .box { background: linear-gradient(135deg, var(--from), var(--to)); border-color: transparent; color: #fff; }
-  .reset { width: 100%; margin-top: 14px; }
-  .showbtn { width: 100%; margin: 16px 0 6px; padding: 17px; font-size: 19px; border-radius: 22px; display: flex;
+  .reset { display: block; margin: 12px 0 0 auto; padding: 7px 14px; font-size: 14px; border-radius: 14px; }
+  .showbtn { width: 100%; margin: 14px 0 6px; padding: 15px; font-size: 18px; border-radius: 22px; display: flex;
              align-items: center; justify-content: center; gap: 12px; box-shadow: 0 10px 30px #6A3BFF55; }
 
   /* list and tender cards */
@@ -177,7 +180,7 @@
   <section id="app" class="hidden">
     <div class="top">
       <div class="logo" data-icon="layers"></div>
-      <div style="flex:1; min-width:0"><h1>Übersicht</h1><div class="hello">Willkommen zurück, <b id="who"></b> 👋</div></div>
+      <div style="flex:1; min-width:0"><h1>EU Ausschreibung</h1><div class="hello">Willkommen zurück, <b id="who"></b> 👋</div></div>
       <button id="bellBtn" class="round" title="Goldfunde"><span data-icon="bell"></span><span id="bellDot" class="dot hidden"></span></button>
       <button id="meBtn" class="round me" title="Konto"><span data-icon="user"></span></button>
     </div>
@@ -208,21 +211,19 @@
         <div class="seg" id="segView"></div>
         <div class="flabel">Zeitraum</div>
         <div class="seg" id="segPeriod"></div>
-        <div class="sortrow"><div class="flabel">Sortieren</div>
+        <div class="frow sortrow"><div class="flabel">Sortieren</div>
           <select id="sort">
             <option value="score">Score (hoch → niedrig)</option>
             <option value="deadline">Frist (früheste zuerst)</option>
             <option value="new">Neueste zuerst</option>
           </select></div>
-        <div class="flabel">Fachgebiet <span class="hint">Mehrfachauswahl möglich</span></div>
+        <div class="flabel">Fachgebiet <span class="hint">mehrere möglich</span></div>
         <div class="ticks" id="ticksFach"></div>
-        <div class="flabel">Leistungsphase (LPH) <span class="pill" id="phasePill">alle Phasen</span></div>
-        <div class="ticks three" id="ticksPhase"></div>
-        <div class="flabel">Frist noch (Wochen)</div>
-        <div class="seg" id="segDeadline"></div>
-        <div class="flabel">Land</div>
-        <div class="seg" id="segCountry"></div>
-        <button id="resetBtn" class="ghost reset">↺ Filter zurücksetzen</button>
+        <div class="frow"><div class="flabel">LPH</div><div class="ticks" id="ticksPhase"></div>
+          <span class="hidden" id="phasePill"></span></div>
+        <div class="frow"><div class="flabel">Frist (Wo.)</div><div class="seg" id="segDeadline"></div></div>
+        <div class="frow"><div class="flabel">Land</div><div class="seg" id="segCountry"></div></div>
+        <button id="resetBtn" class="ghost reset">↺ Zurücksetzen</button>
       </div>
     </div>
     <button id="showBtn" class="showbtn"><span data-icon="search"></span><span id="showText">Treffer anzeigen</span>
@@ -254,7 +255,7 @@ const thumbsLocal = new Map();  // 👍 / 👎 tapped on this phone, not yet tak
 let myName = "";  // as the PC knows this person: the login's name, else its e-mail
 
 // The same choices and defaults as Suchen on the PC.
-const VIEWS = [["kern", "LPH 5–8"], ["mit_planung", "+ Planung 1–4"], ["alle", "Alle Treffer"]];
+const VIEWS = [["kern", "LPH 5–8"], ["mit_planung", "+ LPH 1–4"], ["alle", "Alle"]];
 const PERIODS = [[14, "2 Wochen"], [28, "4 Wochen"], [42, "6 Wochen"]];
 const FACH = [["tiefbau", "Tiefbau"], ["hochbau", "Hochbau"], ["elektro", "Elektro / TGA"], ["energie", "Energie & Netze"],
               ["zaehler", "Zähler & Messstellen"], ["pipeline", "Pipeline"], ["engineering", "Engineering"],
