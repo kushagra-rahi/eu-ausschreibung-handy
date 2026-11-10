@@ -172,6 +172,11 @@
   .thead { display: flex; align-items: center; gap: 12px; padding-right: 36px; }
   .thead .badges { flex: 1; min-width: 0; margin: 0; }
   .tbody { min-width: 0; }
+  .who { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .who span { font-size: 12.5px; font-weight: 600; padding: 3px 9px; border-radius: 11px; border: 1px solid; }
+  .who-save { color: #E9DAFF; border-color: #8C7BFF; background: rgba(90, 60, 200, 0.35); }
+  .who-up { color: #9FF2B8; border-color: #2E9A62; background: rgba(16, 90, 60, 0.45); }
+  .who-down { color: #FFC38A; border-color: #B8682A; background: rgba(120, 60, 20, 0.45); }
   .dpill { margin-left: 4px; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 12px; white-space: nowrap;
            color: #F3D9FF; background: rgba(110, 40, 160, 0.55); border: 1px solid #C77BFF; }
   .dpill.warn { color: #FFD1D8; background: rgba(150, 30, 60, 0.55); border-color: #E06A80; }
@@ -190,7 +195,7 @@
   .tcard .title { font-size: 18px; line-height: 1.28; margin: 12px 0 8px; }
   .meta { display: flex; align-items: center; gap: 9px; color: #DAD4FF; font-size: 15px; margin-top: 5px; }
   .meta svg.i { width: 20px; height: 20px; color: var(--muted); }
-  .tactions { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+  .tactions { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
   .tactions .grow { flex: 1; }
   .tactions .save { padding: 11px 12px; border-radius: 16px; font-size: 15.5px; white-space: nowrap; }
   .tactions > .row { flex-wrap: nowrap; gap: 6px; margin-left: auto; }
@@ -375,7 +380,7 @@ const $ = (id) => document.getElementById(id);
 // Always the newest page (2026-11-11, the user: "the changes are not visible on my iPhone" – GitHub lets a browser keep a
 // page for 10 minutes and a home-screen app holds its copy longer): the page compares its version with version.json,
 // never taken from a cache, and loads a newer one under a new address the phone has no copy of.
-const APP_VERSION = "2026-11-11b";
+const APP_VERSION = "2026-11-11c";
 async function checkUpdate() {
   try {
     const r = await fetch("version.json?t=" + Date.now(), { cache: "no-store" });
@@ -693,6 +698,8 @@ function card(t) {
   const left = countdown(t.deadline);
   if (left) due.appendChild(el("span", "dpill" + (left.warn ? " warn" : ""), left.text));
   body.append(buyer, due);
+  const people = whoLine(t);
+  if (people) body.appendChild(people);
   main.append(head, body);
   const actions = el("div", "tactions");
   const more = el("button", "more", "Details ");
@@ -702,6 +709,28 @@ function card(t) {
   actions.append(saveButton(t), more, thumbs(t));
   c.append(main, actions);
   return c;
+}
+
+/** Who saved and who rated it (2026-11-11, the user: "when boss Olaf saves or likes or dislikes it, or I do, the card
+ * names him or me"): the PC's names, one's own taps at once. */
+function whoLine(t) {
+  const marks = [];
+  if (isSaved(t)) {
+    const by = pending.has(t.publication_number) ? myName : (t.saved_by || "");
+    marks.push(["who-save", `💾 ${by ? "Gespeichert von " + by : "Gespeichert"}`]);
+  }
+  const rated = { ...(t.feedback || {}) };
+  if (myName) {
+    const mine = myThumb(t);
+    if (mine) rated[myName] = mine; else delete rated[myName];
+  }
+  for (const [name, label] of Object.entries(rated)) {
+    marks.push([label === "passt" ? "who-up" : "who-down", `${label === "passt" ? "👍" : "👎"} ${name}`]);
+  }
+  if (!marks.length) return null;
+  const line = el("div", "who");
+  for (const [cls, text] of marks) line.appendChild(el("span", cls, text));
+  return line;
 }
 
 /** The bookmark at the top right: saves with one tap, or undoes a save that is still only saved. */
@@ -759,13 +788,11 @@ function saveButton(t) {
   const pn = t.publication_number;
   if (isSaved(t)) {
     if (status(t) !== "saved") return el("span", "saved", "✓ In Arbeit am PC");
-    const box = el("span", "row");
-    box.appendChild(el("span", "saved", pending.has(pn) && t.status === "new"
-      ? "✓ Gespeichert – kommt auf den PC" : "✓ Gespeichert"));
-    const undo = el("button", "ghost", "↶ Rückgängig");
+    // "Gespeichert" stands in the name line and on the bookmark (2026-11-11): here only the way back
+    const undo = el("button", "ghost save", "↶ Rückgängig");
+    undo.title = pending.has(pn) && t.status === "new" ? "Gespeichert – kommt beim nächsten Abgleich auf den PC" : "Gespeichert";
     undo.onclick = async () => { undo.disabled = true; if (!(await undoSave(t))) undo.disabled = false; };
-    box.appendChild(undo);
-    return box;
+    return undo;
   }
   const b = el("button", "save", "☆ Speichern");
   b.onclick = async () => { b.disabled = true; if (!(await doSave(t))) b.disabled = false; };
@@ -826,6 +853,8 @@ function openDetail(t) {
   const buyer = el("div", "meta", t.buyer || ""); buyer.prepend(uiIcon("building"));
   const land = el("div", "meta", t.country === "AUT" ? "Österreich" : "Deutschland"); land.prepend(uiIcon("pin"));
   hero.append(buyer, land);
+  const people = whoLine(t);
+  if (people) hero.appendChild(people);
   const facts = el("div", "facts");
   const shown = (v) => (v && v !== "nicht angegeben" ? v : "–");
   const dueText = t.deadline ? new Date(t.deadline).toLocaleString("de-DE", { timeZone: "Europe/Berlin", weekday: "short",
