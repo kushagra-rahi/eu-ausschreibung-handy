@@ -133,7 +133,7 @@
   .flabel { display: flex; align-items: center; justify-content: space-between; font-size: 17px; font-weight: 700;
             margin: 16px 0 9px; }
   .flabel .hint { font-weight: 400; font-size: 13.5px; color: var(--muted); }
-  .flabel .pill { font-size: 13px; font-weight: 600; padding: 3px 11px; border-radius: 12px;
+  .flabel .pill { font-size: 13px; font-weight: 600; padding: 3px 11px; border-radius: 12px; white-space: nowrap;
                   background: linear-gradient(90deg, var(--from), var(--to)); }
   .seg { display: flex; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; padding: 3px; gap: 3px;
          background: rgba(255,255,255,0.03); }
@@ -145,10 +145,14 @@
   .sortrow select { padding: 9px 36px 9px 14px; border-radius: 14px; font-size: 14.5px;
     background: rgba(255,255,255,0.05) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F4F2FF' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center / 18px; }
   /* the user's picture (2026-11-11, "make it exactly like this"): tiles with a tick box, two columns; LPH three */
-  .ticks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .ticks.three { grid-template-columns: 1fr 1fr 1fr; }
+  /* columns that may shrink below their longest word (2026-11-11, the user on an iPhone 12: 390 px wide, "Architektur"
+     ran past the card's edge – 1fr never goes below a column's widest word; an iPhone 17 has 402 px) */
+  .ticks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .ticks.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .tick { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--line);
-          border-radius: 16px; padding: 12px; text-align: left; font-weight: 500; font-size: 15px; min-height: 54px; }
+          border-radius: 16px; padding: 12px; text-align: left; font-weight: 500; font-size: 15px; min-height: 54px;
+          min-width: 0; }
+  .tick > span:last-child { min-width: 0; overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; }
   .tick .box { flex: 0 0 22px; height: 22px; border: 1.6px solid #B7AEFF; border-radius: 6px; display: grid;
                place-items: center; font-size: 14px; font-weight: 800; }
   .tick svg { flex: 0 0 22px; width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7;
@@ -289,6 +293,46 @@
            display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px;
            background: #1E1852; border: 1px solid #9C8BFF; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
   .toast span { flex: 1; font-weight: 600; }
+
+  /* every iPhone (up to 440 px): the tiles a little tighter, so whole words fit ("Architektur", "Messstellen") */
+  @media (max-width: 440px) {
+    .fbody { padding: 4px 12px 14px; }
+    .tick { gap: 8px; padding: 12px 10px; font-size: 14px; }
+    .tick .box { flex-basis: 20px; height: 20px; }
+    .tick svg { flex-basis: 20px; width: 20px; height: 20px; }
+  }
+
+  @media (max-width: 380px) {
+    .tick { gap: 7px; padding: 11px 8px; font-size: 13.5px; }
+  }
+
+  /* narrow phones (iPhone mini / SE, or an iPhone with "Display Zoom" or larger text: 320–360 px wide) */
+  @media (max-width: 360px) {
+    body { padding-left: 12px; padding-right: 12px; }
+    .appbar { margin-left: -12px; margin-right: -12px; padding-left: 12px; padding-right: 12px; }
+    .appbar h1 { font-size: 17px; }
+    .kpis { gap: 10px; }
+    .kpi { padding: 12px; min-height: 116px; }
+    .kpi b { font-size: 32px; }
+    .kpi span.lbl { font-size: 13.5px; }
+    .fbody { padding: 4px 10px 12px; }
+    .frow { gap: 10px; }
+    .flabel { font-size: 16px; }
+    .seg button { font-size: 13.5px; padding: 9px 1px; }
+    .seg button.on::after { content: ""; }
+    .ticks { gap: 8px; }
+    .tick { gap: 7px; padding: 10px 8px; font-size: 14px; }
+    .ticks.three .tick { justify-content: center; gap: 6px; padding: 10px 4px; }
+    .ticks:not(.three) .tick svg { display: none; }  /* the tick box stays, the icon gives way */
+    .tick .box { flex-basis: 19px; height: 19px; }
+    .tick svg { flex-basis: 19px; width: 19px; height: 19px; }
+    .showbtn { font-size: 17px; padding: 14px; }
+    .tcard { padding: 14px 12px 12px; }
+    .tcard .title { font-size: 17px; }
+    .meta { font-size: 14px; }
+    .tactions { gap: 6px; }
+    .tactions .save { padding: 10px 10px; font-size: 14.5px; }
+  }
 </style>
 </head>
 <body>
@@ -380,7 +424,7 @@ const $ = (id) => document.getElementById(id);
 // Always the newest page (2026-11-11, the user: "the changes are not visible on my iPhone" – GitHub lets a browser keep a
 // page for 10 minutes and a home-screen app holds its copy longer): the page compares its version with version.json,
 // never taken from a cache, and loads a newer one under a new address the phone has no copy of.
-const APP_VERSION = "2026-11-11d";
+const APP_VERSION = "2026-11-11e";
 async function checkUpdate() {
   try {
     const r = await fetch("version.json?t=" + Date.now(), { cache: "no-store" });
