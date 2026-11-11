@@ -183,7 +183,7 @@
   .sring { position: relative; flex: 0 0 68px; width: 68px; height: 68px; }
   .sring svg { width: 68px; height: 68px; transform: rotate(-90deg); }
   .sring .num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1; }
-  .sring .num b { font-size: 23px; font-weight: 800; }
+  .sring .num b { font-size: 26px; font-weight: 800; }
   .sring .num span { font-size: 12px; color: var(--muted); margin-top: 3px; }
   .sring .ok { position: absolute; top: -2px; right: -2px; width: 22px; height: 22px; border-radius: 50%; display: grid;
                place-items: center; background: #22C55E; color: #fff; font-size: 13px; font-weight: 900;
@@ -380,7 +380,7 @@ const $ = (id) => document.getElementById(id);
 // Always the newest page (2026-11-11, the user: "the changes are not visible on my iPhone" – GitHub lets a browser keep a
 // page for 10 minutes and a home-screen app holds its copy longer): the page compares its version with version.json,
 // never taken from a cache, and loads a newer one under a new address the phone has no copy of.
-const APP_VERSION = "2026-11-11c";
+const APP_VERSION = "2026-11-11d";
 async function checkUpdate() {
   try {
     const r = await fetch("version.json?t=" + Date.now(), { cache: "no-store" });
@@ -660,7 +660,8 @@ function scoreRing(t) {
     + ` stroke-dasharray="${(2 * Math.PI * 32 * score / 100).toFixed(1)} 999"/>`;
   box.appendChild(svg);
   const num = el("div", "num");
-  num.append(el("b", "", String(score)), el("span", "", "Score"));
+  num.appendChild(el("b", "", String(score)));  // only the number (2026-11-11, the user: "remove the Score text")
+  box.title = `Score ${score}`;
   box.appendChild(num);
   if (t.gold) box.appendChild(el("span", "ok", "✓"));
   return box;
